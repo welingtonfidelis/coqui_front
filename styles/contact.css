@@ -1,0 +1,49 @@
+#contact-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#contact-page main img {
+    width: 120px;
+    height: 70px;
+    margin-bottom: 20px;
+}
+
+#contact-page main strong {
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+}
+
+#contact-page main {
+    width: 500px;
+    background: var(--color-card-light);
+    padding: 20px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+}
+
+#contact-page main button {
+    margin-top: 10px;
+}
+
+#contact-page a {
+    color: var(--color-text-base);
+    font-weight: 500;
+    margin-top: 20px;
+    text-align: center;
+}
+
+#contact-page .contact-error-message {
+    text-align: center;
+    color: var(--color-text-error);
+}
+
+@media (max-width: 600px) {
+    #contact-page main {
+        width: 90vw;
+    }
+}

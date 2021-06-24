@@ -1,0 +1,81 @@
+.list-item {
+    display: flex;
+    align-items: center;
+    background: var(--color-card-dark);
+    color: var(--color-card-light);
+    padding: 4px;
+    border-radius: 25px 0 0 25px;
+    margin-top: 5px;
+}
+
+.list-item-icon {
+    height: 42px;
+    width: 42px;
+    background: var(--color-title-secondary);
+    border-radius: 50%;
+    margin-right: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 4.5rem;
+}
+
+.list-item-col1 {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.list-item-col1 strong {
+    font-size: 1.8rem;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.list-item-col2 {
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.list-item-col2 span:first-child {
+    margin-bottom: 2px;
+}
+
+.list-item-action {
+    background: #546F93;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    border-radius: 20px 0 0 20px;
+    margin-left: 12px;
+}
+
+.list-item-action svg {
+    font-size: 1.9rem;
+    margin-left: 10px;
+    transition: .5s;
+}
+
+.list-item-action svg:hover {
+    cursor: pointer;
+}
+
+.list-item-action svg:hover {
+    color: var(--color-tertiary);
+}
+
+.list-item-action svg:not(:first-child):hover {
+    color: var(--color-text-error);
+}
+
+@media (max-width: 600px) {
+    .list-item-col1 {
+        width: 118px;
+    }
+}

@@ -1,0 +1,23 @@
+.input-simple {
+    border-radius: 6px;
+}
+
+.input-simple input {
+    height: 32px;
+}
+
+.ant-input-affix-wrapper-textarea-with-clear-btn {
+    border-radius: 6px;
+}
+
+.input-simple .anticon:nth-child(2), .input-simple .ant-input-password-icon {
+    color: var(--color-primary-dark);
+}
+
+.ant-picker {
+    border-radius: 6px;
+}
+
+.ant-picker input {
+    height: 32px;
+}

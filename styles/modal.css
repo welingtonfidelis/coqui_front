@@ -1,0 +1,43 @@
+.ant-modal-content {
+    background-color: var(--color-secondary-dark);
+}
+
+.ant-modal-header {
+    background-color: var(--color-secondary-dark);
+    border-bottom: 1px solid var(--color-tertiary-dark);
+}
+
+.ant-modal-close svg {
+    color: var(--color-title-dark);
+    transition: .5s;
+}
+
+.ant-modal-close svg:hover {
+    color: var(--color-primary-dark);
+}
+
+.ant-modal-title {
+    color: var(--color-title-dark);
+    font-size: 1.9rem;
+}
+
+.ant-modal-footer {
+    border-top: 1px solid var(--color-tertiary-dark);
+}
+
+.ant-modal-body .profile-password {
+    margin-top: 10px;
+}
+
+.ant-modal-body {
+    color: var(--color-text-base-dark);
+}
+
+.profile-password .ant-collapse, .profile-password .ant-collapse-content {
+    background-color: var(--color-tertiary-dark);
+    border: none;
+}
+
+.profile-password .ant-collapse-header {
+    color: var(--color-title-dark) !important;
+}

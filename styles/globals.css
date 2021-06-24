@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+@import url('~antd/dist/antd.css');
+
+:root {
+  font-size: 60%;
+}
+
+:root {
+  --color-background-dark: #1B1B1E;
+  --color-primary-dark: #2D68FF;
+  --color-secondary-dark: #313440;
+  --color-tertiary-dark: #60616B;
+  --color-title-dark: #fff;
+  --color-subtitle-dark: #B1B1B1;
+  --color-text-base-dark: #fff;
+  --color-error: #EC1111;
+  --color-success: #0FC000;
+  --color-warning: #E9EE09;
+}
+
+html, body, #root {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: var(--color-background-dark);
+}
+
+body, input, button, textarea {
+  font: 400 1.6rem Lato, sans-serif;
+  color: var(--color-text-base);
+}
+
+.ant-btn {
+  text-transform: uppercase;
+}
+
+.ant-alert {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  z-index: 999;
+}
+
+.ant-select {
+  width: 100%;
+}
+
+.ant-picker {
+  width: 100%;
+}
+
+.ant-btn {
+  border-radius: 6px;
+}
+
+.ant-btn-primary {
+  background-color: var(--color-primary-dark);
+  border: none;
+  border-radius: 6px;
+}
+
+.ant-empty {
+  color: var(--color-text-base-dark);
+}
+
+.ant-spin-nested-loading, .ant-spin-container {
+  height: 100%;
+}
+
+@media (min-width: 700px) {
+  :root {
+      font-size: 62.5%;
+  }
+}
