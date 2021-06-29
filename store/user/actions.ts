@@ -1,16 +1,22 @@
 import { UserLoginReducerInterface, UserReducerInterface } from "./model";
-import { 
-  LOGIN, LOGOUT, START_LOGIN_LOAD, START_PROFILE_LOAD, 
-  STOP_LOGIN_LOAD, STOP_PROFILE_LOAD, UPDATE_PROFILE, UPDATE_TOKEN 
+import {
+  LOGIN,
+  LOGOUT,
+  START_LOGIN_LOAD,
+  START_PROFILE_LOAD,
+  STOP_LOGIN_LOAD,
+  STOP_PROFILE_LOAD,
+  UPDATE_PROFILE,
+  UPDATE_TOKEN,
 } from "./types";
 
 export const userLogin = (payload: UserLoginReducerInterface) => ({
   type: LOGIN,
-  payload
+  payload,
 });
 
 export const userLogout = () => ({
-  type: LOGOUT
+  type: LOGOUT,
 });
 
 export const userStartLoginLoading = () => ({
@@ -23,7 +29,7 @@ export const userStopLoginLoading = () => ({
 
 export const userUpdateToken = (token: string) => ({
   type: UPDATE_TOKEN,
-  payload: token
+  payload: token,
 });
 
 export const userStartProfileLoading = () => ({
@@ -36,5 +42,5 @@ export const userStopProfileLoading = () => ({
 
 export const userUpdateProfile = (payload: UserReducerInterface) => ({
   type: UPDATE_PROFILE,
-  payload
+  payload,
 });

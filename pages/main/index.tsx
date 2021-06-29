@@ -34,6 +34,14 @@ import { getService, patchService } from "../../services/apiRequest";
 import { UserReducerInterface } from "../../store/user/model";
 import moment from "moment";
 import { ButtonPrimary } from "../../components/button";
+import {
+  conversationStartListLoading,
+  conversationUpdateList,
+} from "../../store/conversation/actions";
+import {
+  chatUsersStartListLoading,
+  chatUsersUpdateList,
+} from "../../store/chatUsers/actions";
 
 export default function Home() {
   const [selectedPage, setSelectedPage] = useState(<NewsPage />);
@@ -81,7 +89,127 @@ export default function Home() {
 
   useEffect(() => {
     getUserProfile();
+
   }, []);
+  
+  useEffect(() => {
+    if(userInfo.id) {
+      getConversations();
+      getChatUsers();
+    }
+  
+  }, [userInfo])
+
+  const getChatUsers = async () => {
+    dispatch(chatUsersStartListLoading());
+
+    dispatch(
+      chatUsersUpdateList({
+        loadingList: false,
+        chatUserIdIndex: {},
+        list: [
+          {
+            id: "2",
+            name: "Juliana Moraez",
+            profileImage:
+              "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/beaver.png",
+          },
+          {
+            id: "3",
+            name: "Fabiano Otavio",
+            profileImage:
+              "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/cat.png",
+          },
+          {
+            id: "4",
+            name: "Julia Souza",
+            profileImage:
+              "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/elephant.png",
+          },
+        ],
+      })
+    );
+  };
+
+  const getConversations = async () => {
+    dispatch(conversationStartListLoading());
+
+    dispatch(
+      conversationUpdateList({
+        userId: userInfo.id,
+        conversationList: {
+          conversationIdIndex: {},
+          loadingList: false,
+          list: [
+            {
+              id: 1,
+              userIdA: "1",
+              userIdB: "2",
+              messages: [
+                {
+                  id: 1,
+                  conversationId: 1,
+                  senderId: "2",
+                  receiverId: '1',
+                  sentTime: new Date(),
+                  text: "Oi",
+                },
+                {
+                  id: 2,
+                  conversationId: 1,
+                  senderId: "2",
+                  receiverId: '1',
+                  sentTime: new Date(),
+                  text: "Me passa o bang lá",
+                },
+                {
+                  id: 3,
+                  conversationId: 1,
+                  senderId: "1",
+                  receiverId: '2',
+                  sentTime: new Date(),
+                  text: "Ta bem, segura ai",
+                },
+              ],
+            },
+            {
+              id: 2,
+              userIdA: "3",
+              userIdB: "1",
+              messages: [
+                {
+                  id: 4,
+                  conversationId: 2,
+                  senderId: "3",
+                  receiverId: '1',
+                  sentTime: new Date(),
+                  text: "Fala doido",
+                },
+                {
+                  id: 5,
+                  conversationId: 2,
+                  senderId: "3",
+                  receiverId: '1',
+                  sentTime: new Date(),
+                  text: "Eae maluco",
+                },
+                {
+                  id: 6,
+                  conversationId: 2,
+                  senderId: "1",
+                  receiverId: '3',
+                  sentTime: new Date(),
+                  text: "Vamos sair hoje?",
+                },
+              ],
+            },
+          ],
+        }
+
+        }
+      )
+    );
+  };
 
   const getUserProfile = async () => {
     dispatch(userStartProfileLoading());
@@ -105,14 +233,16 @@ export default function Home() {
     setTimeout(() => {
       dispatch(
         userUpdateProfile({
+          id: "1",
           name: "Fulaninho Junior Silva Silva",
           email: "fulanojunior@tofu.com.br",
           user: "fulaninhojunior",
           birth: new Date("1990/07/28"),
           companyName: "Tofu Queijos Litd",
-          phone: '35999269999',
-          address: 'Rua central, nº455 bairro fim, Brasília - DF',
-          profileImage: 'https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/dog_1.png',
+          phone: "35999269999",
+          address: "Rua central, nº455 bairro fim, Brasília - DF",
+          profileImage:
+            "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/dog_1.png",
           loadingLogin: false,
           loadingProfile: false,
         })
@@ -223,9 +353,7 @@ export default function Home() {
           </Dropdown>
         </div>
 
-        <div className="page-container">
-          {selectedPage}
-        </div>
+        <div className="page-container">{selectedPage}</div>
       </main>
 
       <Modal
@@ -251,10 +379,11 @@ export default function Home() {
       >
         <Form onFinish={handleSaveProfile} form={formProfile}>
           <div className="profile-header">
-            {userInfo.profileImage 
-              ? <img src={userInfo.profileImage} alt="" />
-              : <UserOutlined />
-            }
+            {userInfo.profileImage ? (
+              <img src={userInfo.profileImage} alt="" />
+            ) : (
+              <UserOutlined />
+            )}
 
             <div className="col">
               <Form.Item name="user">

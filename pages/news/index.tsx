@@ -64,22 +64,20 @@ export default function News() {
   return (
     <div id="news-page">
       <Spin spinning={newsInfo.loadingList}>
-        {
-            newsInfo.list.length 
-                ? <div className="news-content">
-                    {
-                        newsInfo.list.map((item) => (
-                            <div className="card">
-                                <p>Publicado em {maskDate(item.created_at)}</p>
-                                <h3>{item.title}</h3>
-                                <img src={item.image} alt="" />
-                                <span>{item.description}</span>
-                            </div>
-                        ))
-                    }
-                </div>
-                : <Empty description="Esta lista está vazia." />
-        }
+        {newsInfo.list.length ? (
+          <div className="news-content">
+            {newsInfo.list.map((item, index) => (
+              <div className="card" key={index + ""}>
+                <p>Publicado em {maskDate(item.created_at)}</p>
+                <h3>{item.title}</h3>
+                <img src={item.image} alt="" />
+                <span>{item.description}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <Empty description="Esta lista está vazia." />
+        )}
       </Spin>
     </div>
   );

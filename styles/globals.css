@@ -31,6 +31,19 @@ body, input, button, textarea {
   color: var(--color-text-base);
 }
 
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-tertiary-dark); 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-subtitle-dark); 
+}
+
 .ant-btn {
   text-transform: uppercase;
 }
