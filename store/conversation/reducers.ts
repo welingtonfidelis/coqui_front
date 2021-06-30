@@ -38,8 +38,6 @@ const reducer = (state = initialState, action) => {
     }
 
     case UPDATE_LIST: {
-      console.log('entrando', action.payload);
-      
       const conversations: ConversationReducerInterface =
         action.payload.conversationList;
       const userId = action.payload.userId;
@@ -50,8 +48,6 @@ const reducer = (state = initialState, action) => {
           item.userIdA !== userId ? item.userIdA : item.userIdB;
 
         conversationIdIndex[receiverId] = index;
-        console.log('reduce', userId, item, conversationIdIndex);
-        
       });
       const newState = { ...state, ...conversations, conversationIdIndex };
 

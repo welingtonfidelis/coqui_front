@@ -116,7 +116,7 @@ export default function Home() {
           },
           {
             id: "3",
-            name: "Fabiano Otavio",
+            name: "Fabiano Otavio lemos Araújo",
             profileImage:
               "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/cat.png",
           },
@@ -199,7 +199,7 @@ export default function Home() {
                   senderId: "1",
                   receiverId: '3',
                   sentTime: new Date(),
-                  text: "Vamos sair hoje?",
+                  text: "Vamos sair hoje? Pessoal falou que vai lá no bar do tiagão, podemos ir também",
                 },
               ],
             },

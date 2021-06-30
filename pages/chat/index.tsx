@@ -3,15 +3,27 @@ import { Select } from "../../components/select";
 import { ButtonPrimary } from "../../components/button";
 import { Input } from "../../components/input";
 import { ChatUsersReducerInterface } from "../../store/chatUsers/model";
-import { ConversationItemReducerInterface, ConversationReducerInterface } from "../../store/conversation/model";
+import {
+  ConversationItemReducerInterface,
+  ConversationReducerInterface,
+} from "../../store/conversation/model";
 import { UserReducerInterface } from "../../store/user/model";
 import { FaSearch } from "react-icons/fa";
 import { useState } from "react";
 import { useEffect } from "react";
+import { maskTime } from "../../util";
+
+interface ConversationIterface extends ConversationItemReducerInterface {
+  userName: string;
+  userProfile: string;
+}
 
 export default function Chat() {
-  const [conversationList, setConversationList] = useState<ConversationItemReducerInterface[]>([]);
-  const [conversationSelected, setConversationSelected] = useState<ConversationItemReducerInterface | null>(null);
+  const [conversationList, setConversationList] = useState<
+    ConversationItemReducerInterface[]
+  >([]);
+  const [conversationSelected, setConversationSelected] =
+    useState<ConversationIterface | null>(null);
 
   const dispatch = useDispatch();
   const userOnReducer = useSelector(
@@ -59,10 +71,19 @@ export default function Chat() {
   };
 
   const handleSelectUserChatConversation = (id: string) => {
-    const index = conversationOnReducer.conversationIdIndex[id];
+    const conversationIndex = conversationOnReducer.conversationIdIndex[id];
+    const userIndex = chatUsersOnReducer.chatUserIdIndex[id];
 
-    setConversationSelected(conversationOnReducer.list[index] || null)
-  }
+    const userName = chatUsersOnReducer.list[userIndex]?.name || "";
+    const userProfile = chatUsersOnReducer.list[userIndex]?.profileImage || "";
+    setConversationSelected(
+      {
+        userName,
+        userProfile,
+        ...conversationOnReducer.list[conversationIndex],
+      } || null
+    );
+  };
 
   return (
     <div id="chat-page">
@@ -74,41 +95,75 @@ export default function Chat() {
           />
         </div>
 
-        {conversationList.length && conversationList.map((item, index) => {
-          
-          const receiverId =
-          item.userIdA !== userOnReducer.id ? item.userIdA : item.userIdB;
+        {conversationList.length &&
+          conversationList.map((item, index) => {
+            const receiverId =
+              item.userIdA !== userOnReducer.id ? item.userIdA : item.userIdB;
 
-          const { id, name, profileImage } = selectChatUserById(receiverId);
-          const lastMessage = item.messages[0]?.text;
-          const lastMessageDate = item.messages[0].sentTime;
+            const { id, name, profileImage } = selectChatUserById(receiverId);
+            let lastMessage = "";
+            let lastMessageDate = "";
 
-          return (
-            <div className="chat-user-item" key={index + ''} onClick={() => handleSelectUserChatConversation(receiverId)}>
-              <div className="chat-user-item-img">
-                <img src={profileImage} alt="" />
-              </div>
-              
-              <div className="chat-user-item-name">
-                <strong>{name}</strong>
-                <span className="chat-user-item-last-message-text">Nova conversa</span>
-              </div>
+            if (item.messages.length) {
+              lastMessage = item.messages[item.messages.length - 1].text;
+              lastMessageDate = maskTime(
+                item.messages[item.messages.length - 1].sentTime
+              );
+            }
 
-              <div className="chat-user-item-last-message-date">
-                <span>09:25</span>
-                <div/>
+            return (
+              <div
+                className="chat-user-item"
+                key={index + ""}
+                onClick={() => handleSelectUserChatConversation(receiverId)}
+              >
+                <div className="chat-user-item-img">
+                  <img src={profileImage} alt="userProfile" />
+                </div>
+
+                <div className="chat-user-item-name">
+                  <strong>{name}</strong>
+                  <span className="chat-user-item-last-message-text">
+                    {lastMessage}
+                  </span>
+                </div>
+
+                <div className="chat-user-item-last-message-date">
+                  <span>{lastMessageDate}</span>
+                  <div />
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
 
       <div className="card-conversation-chat">
-        {conversationSelected && conversationSelected.messages.map((item, index) => {
-          return <div key={index + ''}>
-            {item.text}
-          </div>
-        })}
+        {conversationSelected && (
+          <>
+            <div className="chat-header">
+              <div>
+                <img src={conversationSelected.userProfile} alt="userProfile" />
+              </div>
+              <h3>{conversationSelected.userName}</h3>
+            </div>
+
+            <div className="chat-messages">
+              {conversationSelected &&
+                conversationSelected.messages.map((item, index) => {
+                  const className =
+                    item.senderId === userOnReducer.id
+                      ? "chat-message-sended"
+                      : "chat-message-received";
+                  return (
+                    <div className={className} key={index + ""}>
+                      <span>{item.text}</span>
+                      <p>{maskTime(item.sentTime)}</p>
+                    </div>
+                  );
+                })}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
