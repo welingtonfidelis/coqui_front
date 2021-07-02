@@ -106,7 +106,6 @@ export default function Home() {
     dispatch(
       chatUsersUpdateList({
         loadingList: false,
-        chatUserIdIndex: {},
         list: [
           {
             id: "2",
@@ -138,7 +137,6 @@ export default function Home() {
       conversationUpdateList({
         userId: userInfo.id,
         conversationList: {
-          conversationIdIndex: {},
           loadingList: false,
           list: [
             {

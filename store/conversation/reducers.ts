@@ -1,7 +1,7 @@
 import { HYDRATE } from "next-redux-wrapper";
 import {
-  ConversationItemReducerInterface,
   ConversationReducerInterface,
+  ConversationStartListReducerInterface,
   MessageItemReducerInterface,
 } from "./model";
 import {
@@ -15,8 +15,7 @@ import {
 
 const initialState: ConversationReducerInterface = {
   loadingList: false,
-  conversationIdIndex: {},
-  list: [],
+  list: {},
 };
 
 const reducer = (state = initialState, action) => {
@@ -38,77 +37,82 @@ const reducer = (state = initialState, action) => {
     }
 
     case UPDATE_LIST: {
-      const conversations: ConversationReducerInterface =
+      const conversations: ConversationStartListReducerInterface =
         action.payload.conversationList;
       const userId = action.payload.userId;
-      const conversationIdIndex = {};
 
+      const list = {}
       conversations.list.forEach((item, index) => {
         const receiverId =
           item.userIdA !== userId ? item.userIdA : item.userIdB;
 
-        conversationIdIndex[receiverId] = index;
+        list[receiverId] = item;
       });
-      const newState = { ...state, ...conversations, conversationIdIndex };
-
-      return newState;
-    }
-
-    case INSERT_NEW_CONVERSATION: {
-      const newConversation: ConversationItemReducerInterface = action.payload;
-      const userId = action.payload.userId;
-      const newState = state;
-
-      if (newConversation) {
-        const receiverId =
-          newConversation.userIdA !== userId
-            ? newConversation.userIdA
-            : newConversation.userIdB;
-
-        newState.conversationIdIndex[receiverId] = newState.list.length;
-        newState.list.push(newConversation);
-      }
-
-      return newState;
+      return { 
+        ...state, 
+        ...conversations, 
+        list
+      };
     }
 
     case INSERT_OLD_MESSAGES: {
       const oldMessages: MessageItemReducerInterface[] =
         action.payload.messageList;
       const userId = action.payload.userId;
-      const newState = state;
 
       if (oldMessages.length) {
         const receiverId =
           oldMessages[0].receiverId !== userId
             ? oldMessages[0].receiverId
             : oldMessages[0].senderId;
-        const index = newState.conversationIdIndex[receiverId];
 
-        newState.list[index].messages = [
-          ...oldMessages,
-          ...newState.list[index].messages,
-        ];
+        return {
+          ...state,
+          list: {
+            ...state.list,
+            [receiverId]: {
+              ...state.list[receiverId],
+              messages: [...oldMessages, ...state.list[receiverId].messages],
+            },
+          },
+        };
       }
-
-      return newState;
     }
 
     case INSERT_NEW_MESSAGE: {
       const newMessage: MessageItemReducerInterface = action.payload.message;
       const userId = action.payload.userId;
-      const newState = state;
 
-      if (newMessage) {
-        const receiverId =
-          newMessage.receiverId !== userId
-            ? newMessage.receiverId
-            : newMessage.senderId;
-        const index = newState.conversationIdIndex[receiverId];
-        newState.list[index].messages.push(newMessage);
+      const receiverId =
+        newMessage.receiverId !== userId
+          ? newMessage.receiverId
+          : newMessage.senderId;
+
+      if (!state.list[receiverId]) {
+        return {
+          ...state,
+          list: {
+            ...state.list,
+            [receiverId]: {
+              id: newMessage.conversationId,
+              userIdA: newMessage.senderId,
+              userIdB: newMessage.receiverId,
+              messages: [newMessage],
+            },
+          },
+        };
       }
 
-      return newState;
+      return {
+        ...state,
+        list: {
+          ...state.list,
+          [receiverId]: {
+            ...state.list[receiverId],
+            messages: [...state.list[receiverId].messages, newMessage],
+          },
+        },
+      };
     }
 
     default: {

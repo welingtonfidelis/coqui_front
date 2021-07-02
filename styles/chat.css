@@ -16,6 +16,7 @@
   background: var(--color-secondary-dark);
   border-radius: 6px;
   width: 70%;
+  position: relative;
 }
 
 #chat-page .chat-user-item {
@@ -63,12 +64,14 @@
   color: var(--color-subtitle-dark);
 }
 
-#chat-page .chat-user-item-name {
+#chat-page .chat-user-item-name, 
+#chat-page .chat-user-item-last-message-date {
   width: 30%;
 }
 
 #chat-page .chat-user-item-name span,
-#chat-page .chat-user-item-name strong {
+#chat-page .chat-user-item-name strong,
+#chat-page .chat-user-item-last-message-date span {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -137,5 +140,23 @@
     margin: 5px 5px 5px 50px;
     border-radius: 12px 12px 0px 12px;
     color: var(--color-title-dark);
+}
 
+#chat-page .ant-form {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  position: absolute;
+  bottom: 10px;
+  width: calc(100% - 15px);
+}
+
+#chat-page .ant-form .ant-row {
+  flex: 1;
+  margin-right: 8px;
+  margin-bottom: 0;
+}
+
+#chat-page .ant-form button {
+  width: 50px;
 }

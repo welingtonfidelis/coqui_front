@@ -1,30 +1,40 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Select } from "../../components/select";
 import { ButtonPrimary } from "../../components/button";
-import { Input } from "../../components/input";
-import { ChatUsersReducerInterface } from "../../store/chatUsers/model";
+import { Input, InputTextArea } from "../../components/input";
+import {
+  ChatUserItemReducerInterface,
+  ChatUsersReducerInterface,
+} from "../../store/chatUsers/model";
 import {
   ConversationItemReducerInterface,
   ConversationReducerInterface,
+  MessageItemReducerInterface,
 } from "../../store/conversation/model";
 import { UserReducerInterface } from "../../store/user/model";
-import { FaSearch } from "react-icons/fa";
+import { FaPaperPlane, FaSearch } from "react-icons/fa";
 import { useState } from "react";
 import { useEffect } from "react";
 import { maskTime } from "../../util";
+import { Form } from "antd";
+import { conversationInsertNewMessages } from "../../store/conversation/actions";
 
-interface ConversationIterface extends ConversationItemReducerInterface {
+interface ConversationIterface {
   userName: string;
   userProfile: string;
+  conversationIndex: number;
+}
+
+interface ConversationItem {
+  receiverId: string;
+  conversationId: number;
+  messages: MessageItemReducerInterface[];
 }
 
 export default function Chat() {
-  const [conversationList, setConversationList] = useState<
-    ConversationItemReducerInterface[]
-  >([]);
-  const [conversationSelected, setConversationSelected] =
-    useState<ConversationIterface | null>(null);
+  const [selectedChatUser, setSelectedChatUser] =
+    useState<ChatUserItemReducerInterface | null>(null);
 
+  const [form] = Form.useForm();
   const dispatch = useDispatch();
   const userOnReducer = useSelector(
     (state: { user: UserReducerInterface }) => state.user
@@ -37,52 +47,73 @@ export default function Chat() {
       state.conversation
   );
 
-  useEffect(() => {
-    setConversationList(conversationOnReducer.list);
-  }, [conversationOnReducer]);
-
-  const selectChatUserById = (id: string) => {
-    const index = chatUsersOnReducer?.chatUserIdIndex[id];
-    const chatUser = chatUsersOnReducer?.list[index];
-
-    return chatUser;
+  const searchConversation = (chatUserName: string) => {
+    // if (chatUserName.length === 0) {
+    //   setConversationList(conversationOnReducer.list);
+    // } else if (chatUserName.length > 2) {
+    //   const searchChatUsers = chatUsersOnReducer.list.filter((item) =>
+    //     item.name.toLocaleLowerCase().includes(chatUserName.toLocaleLowerCase())
+    //   );
+    //   const newChatUsersList = [];
+    //   searchChatUsers.forEach((item) => {
+    //     const index = conversationOnReducer.conversationIdIndex[item.id];
+    //     if (conversationOnReducer.list[index]) {
+    //       newChatUsersList.push(conversationOnReducer.list[index]);
+    //     } else {
+    //       console.log(":>", item.name);
+    //     }
+    //   });
+    //   setConversationList(newChatUsersList);
+    // }
   };
 
-  const searchConversation = (chatUserName: string) => {
-    if (chatUserName.length === 0) {
-      setConversationList(conversationOnReducer.list);
-    } else if (chatUserName.length > 2) {
-      const searchChatUsers = chatUsersOnReducer.list.filter((item) =>
-        item.name.toLocaleLowerCase().includes(chatUserName.toLocaleLowerCase())
+  const handleSendMessage = (values: any, receiverId: string) => {
+    if (values && values.message && values.message.length) {
+      const { message } = values;
+      const senderId = userOnReducer.id;
+
+      let messageId = 0;
+      let conversationId = new Date().getTime();
+      if (conversationOnReducer.list[receiverId]) {
+        messageId = conversationOnReducer.list[receiverId].messages.length;
+        conversationId = conversationOnReducer.list[receiverId].id;
+      }
+      dispatch(
+        conversationInsertNewMessages({
+          userId: senderId,
+          message: {
+            id: messageId,
+            conversationId,
+            receiverId,
+            senderId,
+            sentTime: new Date(),
+            text: message,
+          },
+        })
       );
 
-      const newChatUsersList = [];
-      searchChatUsers.forEach((item) => {
-        const index = conversationOnReducer.conversationIdIndex[item.id];
-        if (conversationOnReducer.list[index]) {
-          newChatUsersList.push(conversationOnReducer.list[index]);
-        } else {
-          console.log(":>", item.name);
-        }
+      form.setFieldsValue({
+        message: ""
       });
-
-      setConversationList(newChatUsersList);
     }
   };
 
-  const handleSelectUserChatConversation = (id: string) => {
-    const conversationIndex = conversationOnReducer.conversationIdIndex[id];
-    const userIndex = chatUsersOnReducer.chatUserIdIndex[id];
+  const handleSpecialKeySendMessage = (event: any) => {
+    if (event.key === "Enter" && event.ctrlKey) {
+      form.submit();
+    }
+  };
 
-    const userName = chatUsersOnReducer.list[userIndex]?.name || "";
-    const userProfile = chatUsersOnReducer.list[userIndex]?.profileImage || "";
-    setConversationSelected(
-      {
-        userName,
-        userProfile,
-        ...conversationOnReducer.list[conversationIndex],
-      } || null
-    );
+  const chatUserObjectToList = () => {
+    const resp: ChatUserItemReducerInterface[] = [];
+
+    Object.entries(chatUsersOnReducer.list).map((item) => {
+      const userInfo = item[1] as ChatUserItemReducerInterface;
+
+      resp.push(userInfo);
+    });
+
+    return resp;
   };
 
   return (
@@ -95,72 +126,80 @@ export default function Chat() {
           />
         </div>
 
-        {conversationList.length &&
-          conversationList.map((item, index) => {
-            const receiverId =
-              item.userIdA !== userOnReducer.id ? item.userIdA : item.userIdB;
-
-            const { id, name, profileImage } = selectChatUserById(receiverId);
-            let lastMessage = "";
-            let lastMessageDate = "";
-
-            if (item.messages.length) {
-              lastMessage = item.messages[item.messages.length - 1].text;
-              lastMessageDate = maskTime(
-                item.messages[item.messages.length - 1].sentTime
-              );
-            }
-
-            return (
-              <div
-                className="chat-user-item"
-                key={index + ""}
-                onClick={() => handleSelectUserChatConversation(receiverId)}
-              >
-                <div className="chat-user-item-img">
-                  <img src={profileImage} alt="userProfile" />
-                </div>
-
-                <div className="chat-user-item-name">
-                  <strong>{name}</strong>
-                  <span className="chat-user-item-last-message-text">
-                    {lastMessage}
-                  </span>
-                </div>
-
-                <div className="chat-user-item-last-message-date">
-                  <span>{lastMessageDate}</span>
-                  <div />
-                </div>
+        {chatUserObjectToList().map((item, index) => {
+          const { id, name, profileImage } = item;
+          return (
+            <div
+              className="chat-user-item"
+              key={index + ""}
+              onClick={() => setSelectedChatUser(item)}
+            >
+              <div className="chat-user-item-img">
+                <img src={profileImage} alt="userProfile" />
               </div>
-            );
-          })}
+
+              <div className="chat-user-item-name">
+                <strong>{name}</strong>
+                <span className="chat-user-item-last-message-text">
+                  {"lastMessage"}
+                </span>
+              </div>
+
+              <div className="chat-user-item-last-message-date">
+                <span>{"lastMessageDate"}</span>
+                <div />
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="card-conversation-chat">
-        {conversationSelected && (
+        {selectedChatUser && (
           <>
             <div className="chat-header">
               <div>
-                <img src={conversationSelected.userProfile} alt="userProfile" />
+                <img src={selectedChatUser.profileImage} alt="userProfile" />
               </div>
-              <h3>{conversationSelected.userName}</h3>
+              <h3>{selectedChatUser.name}</h3>
             </div>
 
             <div className="chat-messages">
-              {conversationSelected &&
-                conversationSelected.messages.map((item, index) => {
-                  const className =
-                    item.senderId === userOnReducer.id
-                      ? "chat-message-sended"
-                      : "chat-message-received";
-                  return (
-                    <div className={className} key={index + ""}>
-                      <span>{item.text}</span>
-                      <p>{maskTime(item.sentTime)}</p>
-                    </div>
-                  );
-                })}
+              {conversationOnReducer.list[selectedChatUser.id] &&
+                conversationOnReducer.list[selectedChatUser.id].messages.map(
+                  (item: MessageItemReducerInterface, index) =>
+                  {
+                    const className =
+                      item.senderId === userOnReducer.id
+                        ? "chat-message-sended"
+                        : "chat-message-received";
+     
+                    return (
+                      <div className={className} key={index + ""}>
+                        <span>{item.text}</span>
+                        <p>{maskTime(item.sentTime)}</p>
+                      </div>
+                    );
+                  }
+                )}
+
+              <Form
+                onFinish={(e) => handleSendMessage(e, selectedChatUser.id)}
+                form={form}
+              >
+                <Form.Item name="message">
+                  <InputTextArea
+                    placeholder="Digite sua mensagem"
+                    allowClear
+                    rows={2}
+                    onKeyPress={handleSpecialKeySendMessage}
+                  />
+                </Form.Item>
+
+                <ButtonPrimary htmlType="submit" loading={false}>
+                  <FaPaperPlane />
+                </ButtonPrimary>
+              </Form>
             </div>
           </>
         )}

@@ -1,5 +1,4 @@
 import {
-  ConversationItemReducerInterface,
   ConversationReducerInterface,
   MessageItemReducerInterface,
 } from "./model";
@@ -25,14 +24,6 @@ export const conversationUpdateList = (payload: {
   userId: string;
 }) => ({
   type: UPDATE_LIST,
-  payload,
-});
-
-export const conversationInsertNew = (payload: {
-  conversationList: ConversationItemReducerInterface;
-  userId: string;
-}) => ({
-  type: INSERT_NEW_CONVERSATION,
   payload,
 });
 

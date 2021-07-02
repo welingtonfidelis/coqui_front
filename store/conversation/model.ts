@@ -14,8 +14,12 @@ export interface ConversationItemReducerInterface {
   messages: MessageItemReducerInterface[];
 }
 
+export interface ConversationStartListReducerInterface {
+  loadingList: boolean;
+  list: ConversationItemReducerInterface[];
+}
+
 export interface ConversationReducerInterface {
   loadingList: boolean;
-  conversationIdIndex: {};
-  list: ConversationItemReducerInterface[];
+  list: {};
 }

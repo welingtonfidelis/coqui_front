@@ -4,8 +4,12 @@ export interface ChatUserItemReducerInterface {
   profileImage: string;
 }
 
+export interface ChatUsersStartListReducerInterface {
+  loadingList: boolean;
+  list: ChatUserItemReducerInterface[];
+}
+
 export interface ChatUsersReducerInterface {
   loadingList: boolean;
-  chatUserIdIndex: {};
-  list: ChatUserItemReducerInterface[];
+  list: {};
 }

@@ -2,6 +2,7 @@ import { HYDRATE } from "next-redux-wrapper";
 import {
   ChatUserItemReducerInterface,
   ChatUsersReducerInterface,
+  ChatUsersStartListReducerInterface,
 } from "./model";
 import {
   INSERT_NEW_CHAT_USER,
@@ -12,8 +13,7 @@ import {
 
 const initialState: ChatUsersReducerInterface = {
   loadingList: false,
-  chatUserIdIndex: {},
-  list: [],
+  list: {},
 };
 
 const reducer = (state = initialState, action) => {
@@ -35,27 +35,32 @@ const reducer = (state = initialState, action) => {
     }
 
     case UPDATE_LIST: {
-      const conversations: ChatUsersReducerInterface = action.payload;
-      const chatUserIdIndex = {};
+      const chatUsers: ChatUsersStartListReducerInterface = action.payload;
 
-      conversations.list.forEach((item, index) => {
-        chatUserIdIndex[item.id] = index;
+      const list = {};
+      chatUsers.list.forEach((item, index) => {
+        list[item.id] = item;
       });
-      const newState = { ...state, ...conversations, chatUserIdIndex };
 
-      return newState;
+      return {
+        ...state,
+        ...chatUsers,
+        list,
+      };
     }
 
     case INSERT_NEW_CHAT_USER: {
       const newChatUser: ChatUserItemReducerInterface = action.payload;
-      const newState = state;
 
       if (newChatUser) {
-        newState.chatUserIdIndex[newChatUser.id] = newState.list.length;
-        newState.list.push(newChatUser);
+        return {
+          ...state,
+          list: {
+            ...state.list,
+            [newChatUser.id]: newChatUser,
+          },
+        };
       }
-
-      return newState;
     }
 
     default: {
