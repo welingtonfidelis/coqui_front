@@ -16,6 +16,7 @@ import {
 const initialState: ConversationReducerInterface = {
   loadingList: false,
   list: {},
+  countNewMessages: 0,
 };
 
 const reducer = (state = initialState, action) => {
@@ -40,18 +41,22 @@ const reducer = (state = initialState, action) => {
       const conversations: ConversationStartListReducerInterface =
         action.payload.conversationList;
       const userId = action.payload.userId;
+      let countNewMessages = 0;
 
-      const list = {}
+      const list = {};
       conversations.list.forEach((item, index) => {
         const receiverId =
           item.userIdA !== userId ? item.userIdA : item.userIdB;
 
+        item.newMessage ? (countNewMessages += 1) : null;
+
         list[receiverId] = item;
       });
-      return { 
-        ...state, 
-        ...conversations, 
-        list
+      return {
+        ...state,
+        ...conversations,
+        countNewMessages,
+        list,
       };
     }
 
@@ -87,8 +92,11 @@ const reducer = (state = initialState, action) => {
         newMessage.receiverId !== userId
           ? newMessage.receiverId
           : newMessage.senderId;
+      let countNewMessages = state.countNewMessages;
 
       if (!state.list[receiverId]) {
+        if(receiverId === userId) countNewMessages += 1;
+        
         return {
           ...state,
           list: {
@@ -98,18 +106,25 @@ const reducer = (state = initialState, action) => {
               userIdA: newMessage.senderId,
               userIdB: newMessage.receiverId,
               messages: [newMessage],
+              newMessage: receiverId === userId,
             },
           },
         };
       }
 
+      if (state.list[receiverId].newMessage) {
+        if (receiverId !== userId) countNewMessages -= 1;
+      } else if (receiverId === userId) countNewMessages += 1;
+
       return {
         ...state,
+        countNewMessages,
         list: {
           ...state.list,
           [receiverId]: {
             ...state.list[receiverId],
             messages: [...state.list[receiverId].messages, newMessage],
+            newMessage: receiverId === userId,
           },
         },
       };

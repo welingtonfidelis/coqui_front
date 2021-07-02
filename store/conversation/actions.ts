@@ -1,5 +1,6 @@
 import {
   ConversationReducerInterface,
+  ConversationStartListReducerInterface,
   MessageItemReducerInterface,
 } from "./model";
 import {
@@ -20,7 +21,7 @@ export const conversationStopListLoading = () => ({
 });
 
 export const conversationUpdateList = (payload: {
-  conversationList: ConversationReducerInterface;
+  conversationList: ConversationStartListReducerInterface;
   userId: string;
 }) => ({
   type: UPDATE_LIST,

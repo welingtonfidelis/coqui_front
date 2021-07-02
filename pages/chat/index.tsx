@@ -15,20 +15,8 @@ import { FaPaperPlane, FaSearch } from "react-icons/fa";
 import { useState } from "react";
 import { useEffect } from "react";
 import { maskTime } from "../../util";
-import { Form } from "antd";
+import { Form, Badge } from "antd";
 import { conversationInsertNewMessages } from "../../store/conversation/actions";
-
-interface ConversationIterface {
-  userName: string;
-  userProfile: string;
-  conversationIndex: number;
-}
-
-interface ConversationItem {
-  receiverId: string;
-  conversationId: number;
-  messages: MessageItemReducerInterface[];
-}
 
 export default function Chat() {
   const [selectedChatUser, setSelectedChatUser] =
@@ -93,7 +81,7 @@ export default function Chat() {
       );
 
       form.setFieldsValue({
-        message: ""
+        message: "",
       });
     }
   };
@@ -128,6 +116,12 @@ export default function Chat() {
 
         {chatUserObjectToList().map((item, index) => {
           const { id, name, profileImage } = item;
+          const newMessage = conversationOnReducer.list[id]
+            ? conversationOnReducer.list[id].newMessage
+              ? 1
+              : 0
+            : 0;
+
           return (
             <div
               className="chat-user-item"
@@ -135,7 +129,9 @@ export default function Chat() {
               onClick={() => setSelectedChatUser(item)}
             >
               <div className="chat-user-item-img">
-                <img src={profileImage} alt="userProfile" />
+                <Badge dot count={newMessage}>
+                  <img src={profileImage} alt="userProfile" />
+                </Badge>
               </div>
 
               <div className="chat-user-item-name">
@@ -167,13 +163,12 @@ export default function Chat() {
             <div className="chat-messages">
               {conversationOnReducer.list[selectedChatUser.id] &&
                 conversationOnReducer.list[selectedChatUser.id].messages.map(
-                  (item: MessageItemReducerInterface, index) =>
-                  {
+                  (item: MessageItemReducerInterface, index) => {
                     const className =
                       item.senderId === userOnReducer.id
                         ? "chat-message-sended"
                         : "chat-message-received";
-     
+
                     return (
                       <div className={className} key={index + ""}>
                         <span>{item.text}</span>

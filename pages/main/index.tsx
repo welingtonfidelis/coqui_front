@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Button, Collapse, Dropdown, Form } from "antd";
+import { Button, Collapse, Dropdown, Form, Badge } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { UserOutlined, LoadingOutlined } from "@ant-design/icons";
 import {
-  FaUserCircle,
   FaCommentDots,
   FaBullhorn,
   FaRegUserCircle,
@@ -42,6 +41,7 @@ import {
   chatUsersStartListLoading,
   chatUsersUpdateList,
 } from "../../store/chatUsers/actions";
+import { ConversationItemReducerInterface, ConversationReducerInterface } from "../../store/conversation/model";
 
 export default function Home() {
   const [selectedPage, setSelectedPage] = useState(<NewsPage />);
@@ -50,9 +50,14 @@ export default function Home() {
 
   const [formProfile] = Form.useForm();
   const [formProfilePassword] = Form.useForm();
+
   const dispatch = useDispatch();
   const userInfo = useSelector(
     (state: { user: UserReducerInterface }) => state.user
+  );
+  const conversationOnReducer = useSelector(
+    (state: { conversation: ConversationReducerInterface }) =>
+      state.conversation
   );
 
   const menuOptions = [
@@ -63,7 +68,13 @@ export default function Home() {
     },
     {
       title: "Chat",
-      icon: <FaCommentDots />,
+      icon: <Badge
+        count={conversationOnReducer.countNewMessages} 
+        dot
+        offset={[5, 10]}
+      >
+        <FaCommentDots />
+      </Badge>,
       action: () => setSelectedPage(<ChatPage />),
     },
   ];
@@ -143,6 +154,7 @@ export default function Home() {
               id: 1,
               userIdA: "1",
               userIdB: "2",
+              newMessage: false,
               messages: [
                 {
                   id: 1,
@@ -174,6 +186,7 @@ export default function Home() {
               id: 2,
               userIdA: "3",
               userIdB: "1",
+              newMessage: true,
               messages: [
                 {
                   id: 4,
@@ -245,7 +258,7 @@ export default function Home() {
           loadingProfile: false,
         })
       );
-    }, 3000);
+    }, 2000);
   };
 
   const handleLogout = () => {
@@ -346,7 +359,7 @@ export default function Home() {
             {userInfo.loadingProfile ? (
               <LoadingOutlined />
             ) : (
-              <FaRegUserCircle />
+                <FaRegUserCircle />
             )}
           </Dropdown>
         </div>

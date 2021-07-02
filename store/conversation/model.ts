@@ -12,6 +12,7 @@ export interface ConversationItemReducerInterface {
   userIdA: string;
   userIdB: string;
   messages: MessageItemReducerInterface[];
+  newMessage: boolean;
 }
 
 export interface ConversationStartListReducerInterface {
@@ -22,4 +23,5 @@ export interface ConversationStartListReducerInterface {
 export interface ConversationReducerInterface {
   loadingList: boolean;
   list: {};
+  countNewMessages: number;
 }
