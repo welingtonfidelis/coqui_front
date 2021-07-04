@@ -111,32 +111,23 @@ export default function Home() {
   
   }, [userInfo])
 
+  const list = [];
+  for(let i = 1; i <= 20; i += 1) {
+    list.push({
+      id: i,
+      name: `Usuário ${i}`,
+      profileImage:
+        "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/beaver.png",
+    })
+  }
+
   const getChatUsers = async () => {
     dispatch(chatUsersStartListLoading());
 
     dispatch(
       chatUsersUpdateList({
         loadingList: false,
-        list: [
-          {
-            id: "2",
-            name: "Juliana Moraez",
-            profileImage:
-              "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/beaver.png",
-          },
-          {
-            id: "3",
-            name: "Fabiano Otavio lemos Araújo",
-            profileImage:
-              "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/cat.png",
-          },
-          {
-            id: "4",
-            name: "Julia Souza",
-            profileImage:
-              "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/elephant.png",
-          },
-        ],
+        list
       })
     );
   };
@@ -154,7 +145,7 @@ export default function Home() {
               id: 1,
               userIdA: "1",
               userIdB: "2",
-              newMessage: false,
+              newMessage: true,
               messages: [
                 {
                   id: 1,

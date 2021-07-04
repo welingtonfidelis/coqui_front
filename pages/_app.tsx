@@ -15,6 +15,8 @@ import "../styles/contact.css";
 import "../styles/main.css";
 import "../styles/news.css";
 import "../styles/chat.css";
+import "../styles/chatUserListItem.css";
+import "../styles/chatMessageListItem.css";
 
 import { storeWrapper } from "../store";
 import { AuthProvider } from "../contexts/AuthContext";

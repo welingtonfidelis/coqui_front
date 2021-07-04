@@ -10,6 +10,7 @@
   width: 30%;
   margin-right: 8px;
   padding: 8px;
+  overflow: auto;
 }
 
 #chat-page .card-conversation-chat {
@@ -17,68 +18,6 @@
   border-radius: 6px;
   width: 70%;
   position: relative;
-}
-
-#chat-page .chat-user-item {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  border: 1px solid var(--color-tertiary-dark);
-  border-radius: 6px;
-  margin: 4px 0;
-  padding: 4px;
-  transition: 0.5s;
-}
-
-#chat-page .chat-user-item:hover {
-  cursor: pointer;
-  filter: brightness(0.7);
-}
-
-#chat-page .chat-user-item .chat-user-item-img {
-  background-color: var(--color-tertiary-dark);
-  border-radius: 50%;
-  padding: 5px;
-  width: 45px;
-  margin-right: 8px;
-}
-
-#chat-page .chat-user-item img {
-  width: 100%;
-}
-
-#chat-page .chat-user-item-name {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-#chat-page .chat-user-item-name strong {
-  font-size: 1.7rem;
-  color: var(--color-title-dark);
-}
-
-#chat-page .chat-user-item-last-message-text,
-#chat-page .chat-user-item-last-message-date {
-  font-size: 1.3rem;
-  color: var(--color-subtitle-dark);
-}
-
-#chat-page .chat-user-item-name, 
-#chat-page .chat-user-item-last-message-date {
-  width: 30%;
-}
-
-#chat-page .chat-user-item-name span,
-#chat-page .chat-user-item-name strong,
-#chat-page .chat-user-item-last-message-date span {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-#chat-page .chat-user-item-last-message-date {
-  display: flex;
 }
 
 #chat-page .chat-header {
@@ -112,34 +51,8 @@
     display: flex;
     flex-direction: column;
     padding: 6px;
-}
-
-#chat-page .chat-message-received, #chat-page .chat-message-sended {
-    display: flex;
-    flex-direction: column;
-    padding: 8px;
-    min-height: 50px;
-}
-
-#chat-page .chat-message-received p, #chat-page .chat-message-sended p {
-    font-size: 1.2rem;
-    margin: 0;
-    align-self: flex-end;
-}
-
-#chat-page .chat-message-received {
-    background: var(--color-tertiary-dark);
-    margin: 5px 50px 5px 5px;
-    border-radius: 0px 12px 12px 12px;
-    color: var(--color-title-dark);
-}
-
-
-#chat-page .chat-message-sended {
-    background: var(--color-background-dark);
-    margin: 5px 5px 5px 50px;
-    border-radius: 12px 12px 0px 12px;
-    color: var(--color-title-dark);
+    overflow: auto;
+    max-height: 78vh;
 }
 
 #chat-page .ant-form {

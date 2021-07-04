@@ -1,0 +1,27 @@
+.chat-message-list-item-received, .chat-message-list-item-sended {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    min-height: 50px;
+}
+
+.chat-message-list-item-received p, .chat-message-list-item-sended p {
+    font-size: 1.2rem;
+    margin: 0;
+    align-self: flex-end;
+}
+
+.chat-message-list-item-received {
+    background: var(--color-tertiary-dark);
+    margin: 5px 50px 5px 5px;
+    border-radius: 0px 12px 12px 12px;
+    color: var(--color-title-dark);
+}
+
+
+.chat-message-list-item-sended {
+    background: var(--color-background-dark);
+    margin: 5px 5px 5px 50px;
+    border-radius: 12px 12px 0px 12px;
+    color: var(--color-title-dark);
+}

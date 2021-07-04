@@ -1,6 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { ButtonPrimary } from "../../components/button";
 import { Input, InputTextArea } from "../../components/input";
+import { ChatUserListItem } from "../../components/chatUserListItem";
+import { ChatMessageListItem } from "../../components/chatMessageListItem";
 import {
   ChatUserItemReducerInterface,
   ChatUsersReducerInterface,
@@ -23,6 +25,7 @@ export default function Chat() {
     useState<ChatUserItemReducerInterface | null>(null);
 
   const [form] = Form.useForm();
+
   const dispatch = useDispatch();
   const userOnReducer = useSelector(
     (state: { user: UserReducerInterface }) => state.user
@@ -37,7 +40,7 @@ export default function Chat() {
 
   const searchConversation = (chatUserName: string) => {
     // if (chatUserName.length === 0) {
-    //   setConversationList(conversationOnReducer.list);
+    //   setChatUserList(chatUserObjectToList());
     // } else if (chatUserName.length > 2) {
     //   const searchChatUsers = chatUsersOnReducer.list.filter((item) =>
     //     item.name.toLocaleLowerCase().includes(chatUserName.toLocaleLowerCase())
@@ -51,7 +54,7 @@ export default function Chat() {
     //       console.log(":>", item.name);
     //     }
     //   });
-    //   setConversationList(newChatUsersList);
+    //   setChatUserList(newChatUsersList);
     // }
   };
 
@@ -115,38 +118,36 @@ export default function Chat() {
         </div>
 
         {chatUserObjectToList().map((item, index) => {
-          const { id, name, profileImage } = item;
-          const newMessage = conversationOnReducer.list[id]
+          const { id } = item;
+          const newMessageCount = conversationOnReducer.list[id]
             ? conversationOnReducer.list[id].newMessage
               ? 1
               : 0
             : 0;
 
-          return (
-            <div
-              className="chat-user-item"
-              key={index + ""}
-              onClick={() => setSelectedChatUser(item)}
-            >
-              <div className="chat-user-item-img">
-                <Badge dot count={newMessage}>
-                  <img src={profileImage} alt="userProfile" />
-                </Badge>
-              </div>
+          let lastMessageText = "";
+          let lastMessageDate = "";
 
-              <div className="chat-user-item-name">
-                <strong>{name}</strong>
-                <span className="chat-user-item-last-message-text">
-                  {"lastMessage"}
-                </span>
-              </div>
+          if (conversationOnReducer.list[id]) {
+            const lengthList =
+              conversationOnReducer.list[id].messages.length - 1;
+            lastMessageText =
+              conversationOnReducer.list[id].messages[lengthList].text;
+            lastMessageDate = maskTime(
+              conversationOnReducer.list[id].messages[lengthList].sentTime
+            );
+          }
 
-              <div className="chat-user-item-last-message-date">
-                <span>{"lastMessageDate"}</span>
-                <div />
-              </div>
-            </div>
-          );
+          const props = {
+            user: item,
+            newMessageCount,
+            onSelect: setSelectedChatUser,
+            lastMessageText,
+            isSelected: selectedChatUser?.id === id,
+            lastMessageDate,
+          };
+
+          return <ChatUserListItem {...props} key={id} />;
         })}
       </div>
 
@@ -164,17 +165,12 @@ export default function Chat() {
               {conversationOnReducer.list[selectedChatUser.id] &&
                 conversationOnReducer.list[selectedChatUser.id].messages.map(
                   (item: MessageItemReducerInterface, index) => {
-                    const className =
-                      item.senderId === userOnReducer.id
-                        ? "chat-message-sended"
-                        : "chat-message-received";
-
-                    return (
-                      <div className={className} key={index + ""}>
-                        <span>{item.text}</span>
-                        <p>{maskTime(item.sentTime)}</p>
-                      </div>
-                    );
+                    const props = {
+                      messageText: item.text,
+                      messageSentTime: item.sentTime,
+                      sended: item.senderId === userOnReducer.id,
+                    };
+                    return <ChatMessageListItem {...props} key={index + ""} />;
                   }
                 )}
 
