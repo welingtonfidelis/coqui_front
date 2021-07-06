@@ -21,3 +21,14 @@
 .ant-picker input {
     height: 32px;
 }
+
+.ant-input-search .ant-input-group .ant-input-affix-wrapper:not(:last-child) {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+.input-simple .ant-input-group-addon, .input-simple .ant-btn-primary {
+    height: 47px;
+    border-top-right-radius: 6px !important;
+    border-bottom-right-radius: 6px !important;
+}

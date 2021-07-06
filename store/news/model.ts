@@ -6,7 +6,7 @@ export interface NewsItemReducerInterface {
   created_at: Date;
 }
 
-export interface NewsReducerInterface {
+export interface NewsListReducerInterface {
   loadingList: boolean;
   list: NewsItemReducerInterface[];
 }

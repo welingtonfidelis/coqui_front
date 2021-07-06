@@ -8,11 +8,13 @@ import {
   FaRegUserCircle,
   FaQuestion,
   FaUser,
+  FaRegUser,
   FaPowerOff,
 } from "react-icons/fa";
 
 import NewsPage from "../news";
 import ChatPage from "../chat";
+import SystemUserPage from "../system-user";
 import Router from "next/router";
 import { Modal } from "../../components/modal";
 import { Menu } from "../../components/menu";
@@ -77,6 +79,11 @@ export default function Home() {
       </Badge>,
       action: () => setSelectedPage(<ChatPage />),
     },
+    {
+      title: "Usuários",
+      icon: <FaRegUser />,
+      action: () => setSelectedPage(<SystemUserPage />),
+    }
   ];
 
   const userMenuOptions = [

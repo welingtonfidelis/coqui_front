@@ -6,13 +6,13 @@ import {
   newsStopListLoading,
   newsUpdateList,
 } from "../../store/news/actions";
-import { NewsReducerInterface } from "../../store/news/model";
+import { NewsListReducerInterface } from "../../store/news/model";
 import { maskDate } from "../../util";
 
 export default function News() {
   const dispatch = useDispatch();
   const newsInfo = useSelector(
-    (state: { news: NewsReducerInterface }) => state.news
+    (state: { news: NewsListReducerInterface }) => state.news
   );
 
   const images = [

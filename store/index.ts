@@ -5,12 +5,14 @@ import user from "./user/reducers";
 import news from "./news/reducers";
 import conversation from "./conversation/reducers";
 import chatUsers from "./chatUsers/reducers";
+import systemUser from "./systemUser/reducers";
 
 const reducers = combineReducers({
   user,
   news,
   conversation,
   chatUsers,
+  systemUser
 });
 
 const makeStore = () => {

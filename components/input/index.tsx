@@ -1,4 +1,5 @@
 import { Input as InputAntd, InputProps } from "antd";
+import { FaSearch } from "react-icons/fa";
 import { SearchProps, TextAreaProps } from "antd/lib/input";
 import InputMaskAntd from "react-input-mask";
 
@@ -26,7 +27,7 @@ export const InputSearch: React.FC<InputSearchProps> = (props) => (
   <InputAntd.Search
     size="large"
     allowClear
-    enterButton="Buscar"
+    enterButton={<FaSearch />}
     className="input-simple"
     {...props}
   />
