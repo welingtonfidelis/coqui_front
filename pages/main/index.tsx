@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Dropdown, Badge } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined, RollbackOutlined } from "@ant-design/icons";
 import {
   FaCommentDots,
   FaBullhorn,
@@ -10,9 +10,11 @@ import {
   FaUser,
   FaRegUser,
   FaPowerOff,
+  FaRegNewspaper,
 } from "react-icons/fa";
 
 import NewsPage from "../news";
+import NewsEditPage from "../news-edit";
 import ChatPage from "../chat";
 import SystemUserPage from "../system-user";
 import Router from "next/router";
@@ -35,9 +37,8 @@ import {
   chatUsersStartListLoading,
   chatUsersUpdateList,
 } from "../../store/chatUsers/actions";
-import { 
-  ConversationReducerInterface 
-} from "../../store/conversation/model";
+import { ConversationReducerInterface } from "../../store/conversation/model";
+import { ROLES_ENUM } from "../../enums/role";
 
 export default function Home() {
   const [selectedPage, setSelectedPage] = useState(<NewsPage />);
@@ -45,7 +46,7 @@ export default function Home() {
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   const dispatch = useDispatch();
-  const userInfo = useSelector(
+  const userOnReducer = useSelector(
     (state: { user: UserReducerInterface }) => state.user
   );
   const conversationOnReducer = useSelector(
@@ -61,21 +62,33 @@ export default function Home() {
     },
     {
       title: "Chat",
-      icon: <Badge
-        count={conversationOnReducer.countNewMessages} 
-        dot
-        offset={[5, 10]}
-      >
-        <FaCommentDots />
-      </Badge>,
+      icon: (
+        <Badge
+          count={conversationOnReducer.countNewMessages}
+          dot
+          offset={[5, 10]}
+        >
+          <FaCommentDots />
+        </Badge>
+      ),
       action: () => setSelectedPage(<ChatPage />),
     },
-    {
-      title: "Usuários",
-      icon: <FaRegUser />,
-      action: () => setSelectedPage(<SystemUserPage />),
-    }
   ];
+
+  if (userOnReducer.role === ROLES_ENUM.MANAGER || userOnReducer.role === ROLES_ENUM.ADMIN) {
+    menuOptions.push(
+      {
+        title: "Usuários",
+        icon: <FaRegUser />,
+        action: () => setSelectedPage(<SystemUserPage />),
+      },
+      {
+        title: "Editar Notícias",
+        icon: <FaRegNewspaper />,
+        action: () => setSelectedPage(<NewsEditPage />),
+      }
+    );
+  }
 
   const userMenuOptions = [
     {
@@ -98,25 +111,23 @@ export default function Home() {
 
   useEffect(() => {
     getUserProfile();
-
   }, []);
-  
+
   useEffect(() => {
-    if(userInfo.id) {
+    if (userOnReducer.id) {
       getConversations();
       getChatUsers();
     }
-  
-  }, [userInfo])
+  }, [userOnReducer]);
 
   const list = [];
-  for(let i = 1; i <= 20; i += 1) {
+  for (let i = 1; i <= 20; i += 1) {
     list.push({
       id: i,
       name: `Usuário ${i}`,
       profileImage:
         "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/beaver.png",
-    })
+    });
   }
 
   const getChatUsers = async () => {
@@ -125,7 +136,7 @@ export default function Home() {
     dispatch(
       chatUsersUpdateList({
         loadingList: false,
-        list
+        list,
       })
     );
   };
@@ -135,7 +146,7 @@ export default function Home() {
 
     dispatch(
       conversationUpdateList({
-        userId: userInfo.id,
+        userId: userOnReducer.id,
         conversationList: {
           loadingList: false,
           list: [
@@ -149,7 +160,7 @@ export default function Home() {
                   id: 1,
                   conversationId: 1,
                   senderId: "2",
-                  receiverId: '1',
+                  receiverId: "1",
                   sentTime: new Date(),
                   text: "Oi",
                 },
@@ -157,7 +168,7 @@ export default function Home() {
                   id: 2,
                   conversationId: 1,
                   senderId: "2",
-                  receiverId: '1',
+                  receiverId: "1",
                   sentTime: new Date(),
                   text: "Me passa o bang lá",
                 },
@@ -165,7 +176,7 @@ export default function Home() {
                   id: 3,
                   conversationId: 1,
                   senderId: "1",
-                  receiverId: '2',
+                  receiverId: "2",
                   sentTime: new Date(),
                   text: "Ta bem, segura ai",
                 },
@@ -181,7 +192,7 @@ export default function Home() {
                   id: 4,
                   conversationId: 2,
                   senderId: "3",
-                  receiverId: '1',
+                  receiverId: "1",
                   sentTime: new Date(),
                   text: "Fala doido",
                 },
@@ -189,7 +200,7 @@ export default function Home() {
                   id: 5,
                   conversationId: 2,
                   senderId: "3",
-                  receiverId: '1',
+                  receiverId: "1",
                   sentTime: new Date(),
                   text: "Eae maluco",
                 },
@@ -197,17 +208,15 @@ export default function Home() {
                   id: 6,
                   conversationId: 2,
                   senderId: "1",
-                  receiverId: '3',
+                  receiverId: "3",
                   sentTime: new Date(),
                   text: "Vamos sair hoje? Pessoal falou que vai lá no bar do tiagão, podemos ir também",
                 },
               ],
             },
           ],
-        }
-
-        }
-      )
+        },
+      })
     );
   };
 
@@ -329,10 +338,10 @@ export default function Home() {
             trigger={["click"]}
             overlay={<Menu items={userMenuOptions} />}
           >
-            {userInfo.loadingProfile ? (
+            {userOnReducer.loadingProfile ? (
               <LoadingOutlined />
             ) : (
-                <FaRegUserCircle />
+              <FaRegUserCircle />
             )}
           </Dropdown>
         </div>
@@ -353,12 +362,12 @@ export default function Home() {
 
       <ModalProfile
         isVisible={showProfileModal}
-        loading={userInfo.loadingProfile}
+        loading={userOnReducer.loadingProfile}
         onCancel={() => setShowProfileModal(false)}
         onOk={handleSaveProfile}
         onChangePassword={handleSavePassword}
         disableFields={["user", "email"]}
-        {...userInfo}
+        {...userOnReducer}
       />
     </div>
   );

@@ -17,11 +17,11 @@ const initialState = {
   email: null,
   token: null,
   user: null,
-  companyName: null,
   phone: null,
   birth: null,
   address: null,
   profileImage: null,
+  role: null,
 
   loadingLogin: false,
   loadingProfile: false,
@@ -44,14 +44,16 @@ const reducer = (state = initialState, action) => {
       localStorage.removeItem(LOCAL_STORAGE_ENUM.TOKEN);
 
       const newState = {
+        id: null,
         name: null,
         email: null,
         token: null,
         user: null,
-        ongName: null,
+        companyName: null,
         phone: null,
         birth: null,
         address: null,
+        profileImage: null,
       };
       return newState;
     }

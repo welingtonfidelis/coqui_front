@@ -9,8 +9,6 @@ export interface SystemUserItemReducerInterface {
     phone?: string;
     address?: string;
     active: boolean;
-    created_at: Date;
-    updated_at: Date;
 
     loadingItemAction: boolean;
 }

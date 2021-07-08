@@ -28,7 +28,7 @@ export default function News() {
     title: `Notícia ${index + 1}`,
     description: `Descrição da notícia blablablabla ${item}`,
     image: item,
-    created_at: new Date(),
+    createdAt: new Date(),
   }));
 
   useEffect(() => {
@@ -68,9 +68,9 @@ export default function News() {
           <div className="news-content">
             {newsInfo.list.map((item, index) => (
               <div className="card" key={index + ""}>
-                <p>Publicado em {maskDate(item.created_at)}</p>
+                <p>Publicado em {maskDate(item.createdAt)}</p>
                 <h3>{item.title}</h3>
-                <img src={item.image} alt="" />
+                {/* <img src={item.image} alt="" /> */}
                 <span>{item.description}</span>
               </div>
             ))}

@@ -14,6 +14,7 @@ import {
 import { Form } from "antd";
 import { UserReducerInterface } from "../store/user/model";
 import { postService } from "../services/apiRequest";
+import { ROLES_ENUM } from "../enums/role";
 
 export default function Home() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -53,10 +54,17 @@ export default function Home() {
     //   return;
     // }
 
+    let role = ROLES_ENUM.USER;
+
+    if(values.user === 'gerente') role = ROLES_ENUM.MANAGER;
+    else if (values.user === 'admin') role = ROLES_ENUM.ADMIN;
+    
     const data = {
       token: "123123123",
       loadingLogin: false,
+      role
     };
+
     dispatch(userLogin(data));
     Router.replace("/main");
   };

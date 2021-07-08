@@ -1,5 +1,6 @@
 export interface UserLoginReducerInterface {
   token: string;
+  role: string;
   loadingLogin: boolean;
 }
 
@@ -14,6 +15,7 @@ export interface UserReducerInterface {
   token?: string;
   phone?: string;
   address?: string;
+  role?: string;
 
   loadingProfile: boolean;
   loadingLogin: boolean;

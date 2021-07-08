@@ -1,30 +1,34 @@
 import { Spin, Pagination, Empty, Form } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ButtonPrimary } from "../../components/button";
 import { InputSearch } from "../../components/input";
-import { ModalProfile } from "../../components/modalProfile";
+import { Modal } from "../../components/modal";
 import { ListItem } from "../../components/listItem";
-import {
-  SystemUserItemReducerInterface,
-  SystemUserListReducerInterface,
-} from "../../store/systemUser/model";
+import { Input, InputTextArea } from "../../components/input";
+import { DatePicker } from "../../components/datePicker";
 import {
   postService,
   deleteService,
   getService,
   putService,
 } from "../../services/apiRequest";
-import {
-  systemUserStartItemActionLoading,
-  systemUserStartListLoading,
-  systemUserStartSaveLoading,
-  systemUserStopItemActionLoading,
-  systemUserStopListLoading,
-  systemUserStopSaveLoading,
-  systemUserUpdateList,
-} from "../../store/systemUser/actions";
 import { FaBan, FaCheckCircle } from "react-icons/fa";
+import {
+  NewsItemReducerInterface,
+  NewsListReducerInterface,
+} from "../../store/newsEdit/model";
+import {
+  newsStartItemActionLoading,
+  newsStartListLoading,
+  newsStartSaveLoading,
+  newsStopItemActionLoading,
+  newsStopListLoading,
+  newsStopSaveLoading,
+  newsUpdateList,
+} from "../../store/newsEdit/actions";
+import { maskDate } from "../../util";
+import moment from "moment";
 
 export default function SystemUser() {
   const [page, setPage] = useState(1);
@@ -32,24 +36,25 @@ export default function SystemUser() {
   const [total, setTotal] = useState(0);
   const [reloadList, setReloadList] = useState(0);
   const [seletedUpdate, setSelectedUpdate] = useState<
-    SystemUserItemReducerInterface | {}
+    NewsItemReducerInterface | {}
   >({});
   const [descriptionSearch, setDescriptionSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
 
+  const [form] = Form.useForm();
   const dispatch = useDispatch();
 
-  const systemUserListOnReducer = useSelector(
-    (state: { systemUser: SystemUserListReducerInterface }) => state.systemUser
+  const newsListOnReducer = useSelector(
+    (state: { newsEdit: NewsListReducerInterface }) => state.newsEdit
   );
   const url = "/cash-register-groups";
 
   useEffect(() => {
-    getCashRegisterGroupList();
+    getNewsList();
   }, [page, limit, reloadList]);
 
-  const getCashRegisterGroupList = async () => {
-    dispatch(systemUserStartListLoading());
+  const getNewsList = async () => {
+    dispatch(newsStartListLoading());
 
     // const props = {
     //     url,
@@ -68,35 +73,29 @@ export default function SystemUser() {
     //     setTotal(count);
     // }
 
-    const users = [];
+    const news = [];
     for (let i = 1; i <= 15; i += 1) {
-      users.push({
-        id: 1 + "",
-        name: `Usuário Fulano ${i}`,
-        email: `usuario_${i}@email.com`,
-        user: `usuario${1}`,
-        companyName: "Tofu Queijos Litd",
-        birth: new Date(`${i}/07/1990`),
-        profileImage:
-          "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/beaver.png",
-        phone: `35 9 9999-83${(i + "").padStart(2, "0")}`,
-        address: `Rua Alpha dos Maia, Nº ${i}, Brasília - DF`,
-        active: Math.floor(Math.random() * 2) > 0,
-        created_at: new Date(),
-        updated_at: new Date(),
+      news.push({
+        id: i,
+        title: `Notícia ${i}`,
+        description: `Notícia ${i} bla bla bla blab lablbalbalbal`,
+        image: "",
+        expiresIn: new Date(`2021/07/${i}`),
+        createdAt: new Date(`2021/06/${i}`),
+        loadingItemAction: false,
       });
-
-      setTotal(users.length);
     }
     setTimeout(() => {
-      dispatch(systemUserUpdateList(users));
+      dispatch(newsUpdateList(news));
 
-      dispatch(systemUserStopListLoading());
+      dispatch(newsStopListLoading());
+
+      setTotal(news.length);
     }, 1000);
   };
 
-  const handleSaveSystemUser = async (values: any) => {
-    dispatch(systemUserStartSaveLoading());
+  const handleSaveNews = async (values: any) => {
+    dispatch(newsStartSaveLoading());
 
     console.log("modal save", values);
 
@@ -125,30 +124,35 @@ export default function SystemUser() {
         setReloadList(reloadList + 1);
       }
 
-      dispatch(systemUserStopSaveLoading());
+      dispatch(newsStopSaveLoading());
       setShowModal(false);
       setSelectedUpdate({});
     }, 2000);
   };
 
   const handleSelectSystemUser = (index: number) => {
-    setSelectedUpdate(systemUserListOnReducer.list[index]);
+    setSelectedUpdate(newsListOnReducer.list[index]);
+
+    form.setFieldsValue({
+      ...newsListOnReducer.list[index], 
+      expires_in: moment(newsListOnReducer.list[index].expiresIn)
+    });
 
     setShowModal(true);
   };
 
-  const handleSearchCashRegisterGroup = (description: string) => {
+  const handleSearch = (description: string) => {
     setDescriptionSearch(description);
     setPage(1);
     setReloadList(reloadList + 1);
   };
 
   const handleDeleteSystemUser = async (index: number) => {
-    dispatch(systemUserStartItemActionLoading(index));
+    dispatch(newsStartItemActionLoading(index));
 
     console.log("delete");
 
-    // const { id } = systemUserListOnReducer.list[index];
+    // const { id } = newsListOnReducer.list[index];
 
     // const { ok } = await deleteService({
     //     id,
@@ -156,26 +160,7 @@ export default function SystemUser() {
     // });
 
     setTimeout(() => {
-      dispatch(systemUserStopItemActionLoading(index));
-    }, 2000);
-
-    // if(ok) setReloadList(reloadList + 1);
-  };
-
-  const handleChangeStatusSystemUser = async (index: number) => {
-    dispatch(systemUserStartItemActionLoading(index));
-
-    console.log("change status");
-
-    // const { id } = systemUserListOnReducer.list[index];
-
-    // const { ok } = await deleteService({
-    //     id,
-    //     url,
-    // });
-
-    setTimeout(() => {
-      dispatch(systemUserStopItemActionLoading(index));
+      dispatch(newsStopItemActionLoading(index));
     }, 2000);
 
     // if(ok) setReloadList(reloadList + 1);
@@ -184,15 +169,20 @@ export default function SystemUser() {
   const handleCloseModalProfile = () => {
     setShowModal(false);
     setSelectedUpdate({});
+    form.setFieldsValue({
+      title: '',
+      expires_in: '',
+      description: ''
+    })
   };
 
   return (
     <div id="system-user-page">
-      <Spin spinning={systemUserListOnReducer.loadingList}>
+      <Spin spinning={newsListOnReducer.loadingList}>
         <div className="system-user-search">
           <InputSearch
-            placeholder="Nome do usuário"
-            onSearch={(e) => handleSearchCashRegisterGroup(e)}
+            placeholder="Título da notícia"
+            onSearch={(e) => handleSearch(e)}
           />
 
           <ButtonPrimary onClick={() => setShowModal(true)}>Novo</ButtonPrimary>
@@ -200,26 +190,16 @@ export default function SystemUser() {
 
         <div className="system-user-list">
           {total > 0 ? (
-            systemUserListOnReducer.list.map((item, index) => {
-              const subtitle = item.active ? (
-                <>
-                  <FaCheckCircle color="green" /> <span>Ativo</span>
-                </>
-              ) : (
-                <>
-                  <FaBan color="yellow" /> <span>Inativo</span>
-                </>
-              );
-
+            newsListOnReducer.list.map((item, index) => {
               return (
                 <ListItem
                   key={index + ""}
-                  title={item.name}
-                  subtitle={subtitle}
-                  activeItem={item.active}
-                  icon={item.profileImage && <img src={item.profileImage} alt="" />}
+                  title={item.title}
+                  subtitle={`Criada em: ${maskDate(
+                    item.createdAt
+                  )} - Expira em: ${maskDate(item.expiresIn)}`}
+                  //   icon={<img src={item.profileImage} alt="" />}
                   onEdit={() => handleSelectSystemUser(index)}
-                  onChangeStatus={() => handleChangeStatusSystemUser(index)}
                   onDelete={() => handleDeleteSystemUser(index)}
                   onActionLoad={item.loadingItemAction}
                 />
@@ -239,13 +219,41 @@ export default function SystemUser() {
         />
       </Spin>
 
-      <ModalProfile
+      <Modal
+        title="Notícia"
         isVisible={showModal}
-        loading={systemUserListOnReducer.loadingSave}
+        onOk={() => {
+          form.submit();
+        }}
         onCancel={handleCloseModalProfile}
-        onOk={handleSaveSystemUser}
-        {...seletedUpdate}
-      />
+        confirmLoading={newsListOnReducer.loadingSave}
+      >
+        <Form onFinish={handleSaveNews} form={form}>
+          <Form.Item
+            name="title"
+            rules={[{ required: true, message: "Insira um título" }]}
+          >
+            <Input placeholder="Título da notícia" title="Título da notícia" />
+          </Form.Item>
+
+          <Form.Item
+            name="expires_in"
+            rules={[{ required: true, message: "Escolha uma data" }]}
+          >
+            <DatePicker placeholder="Data de expiração" />
+          </Form.Item>
+
+          <Form.Item
+            name="description"
+            rules={[{ required: true, message: "Insira uma descrição" }]}
+          >
+            <InputTextArea
+              placeholder="Descrição da notícia"
+              title="Descrição da notícia"
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }
