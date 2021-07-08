@@ -8,6 +8,7 @@ import "../styles/input.css";
 import "../styles/button.css";
 import "../styles/listItem.css";
 import "../styles/modal.css";
+import "../styles/modalProfile.css";
 import "../styles/login.css";
 import "../styles/resetPassword.css";
 import "../styles/changePassword.css";

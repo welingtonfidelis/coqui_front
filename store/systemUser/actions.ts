@@ -1,4 +1,4 @@
-import { SystemUserListReducerInterface } from "./model";
+import { SystemUserItemReducerInterface } from "./model";
 import { 
   START_ITEM_ACTION_LOAD, START_LIST_LOAD, START_SAVE_LOAD, 
   STOP_ITEM_ACTION_LOAD, STOP_LIST_LOAD, STOP_SAVE_LOAD, UPDATE_LIST
@@ -30,7 +30,7 @@ export const systemUserStopItemActionLoading = (payload: number) => ({
   payload
 });
 
-export const systemUserUpdateList = (payload: SystemUserListReducerInterface[]) => ({
+export const systemUserUpdateList = (payload: SystemUserItemReducerInterface[]) => ({
   type: UPDATE_LIST,
   payload
 });

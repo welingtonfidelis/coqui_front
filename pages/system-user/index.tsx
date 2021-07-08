@@ -1,208 +1,251 @@
-import { Spin, Pagination, Empty, Form } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { ButtonPrimary } from '../../components/button';
-import { Input, InputSearch, InputTextArea } from '../../components/input';
-import { ListItem } from '../../components/listItem';
-import { Modal } from '../../components/modal';
-import { SystemUserListReducerInterface } from '../../store/systemUser/model';
+import { Spin, Pagination, Empty, Form } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { ButtonPrimary } from "../../components/button";
+import { InputSearch } from "../../components/input";
+import { ModalProfile } from "../../components/modalProfile";
+import { ListItem } from "../../components/listItem";
 import {
-    postService, deleteService, getService, putService 
-} from '../../services/apiRequest';
-import { systemUserStartItemActionLoading, systemUserStartListLoading, systemUserStartSaveLoading, systemUserStopItemActionLoading, systemUserStopListLoading, systemUserStopSaveLoading, systemUserUpdateList } from '../../store/systemUser/actions';
+  SystemUserItemReducerInterface,
+  SystemUserListReducerInterface,
+} from "../../store/systemUser/model";
+import {
+  postService,
+  deleteService,
+  getService,
+  putService,
+} from "../../services/apiRequest";
+import {
+  systemUserStartItemActionLoading,
+  systemUserStartListLoading,
+  systemUserStartSaveLoading,
+  systemUserStopItemActionLoading,
+  systemUserStopListLoading,
+  systemUserStopSaveLoading,
+  systemUserUpdateList,
+} from "../../store/systemUser/actions";
+import { FaBan, FaCheckCircle } from "react-icons/fa";
 
 export default function SystemUser() {
-    const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(10);
-    const [total, setTotal] = useState(0);
-    const [reloadList, setReloadList] = useState(0);
-    const [seletedUpdate, setSelectedUpdate] = useState('');
-    const [descriptionSearch, setDescriptionSearch] = useState('');
-    const [showModal, setShowModal] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [reloadList, setReloadList] = useState(0);
+  const [seletedUpdate, setSelectedUpdate] = useState<
+    SystemUserItemReducerInterface | {}
+  >({});
+  const [descriptionSearch, setDescriptionSearch] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
-    const [form] = Form.useForm();
-    const buttonRef = useRef(null)
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-    const systemUserListOnReducer = useSelector(
-        (state: { systemUser: SystemUserListReducerInterface }) => state.systemUser
-    );
-    const url = '/cash-register-groups';
+  const systemUserListOnReducer = useSelector(
+    (state: { systemUser: SystemUserListReducerInterface }) => state.systemUser
+  );
+  const url = "/cash-register-groups";
 
-    useEffect(() => {
-        getCashRegisterGroupList();
-    }, [page, limit, reloadList]);
+  useEffect(() => {
+    getCashRegisterGroupList();
+  }, [page, limit, reloadList]);
 
-    const getCashRegisterGroupList = async () => {
-        dispatch(systemUserStartListLoading());
+  const getCashRegisterGroupList = async () => {
+    dispatch(systemUserStartListLoading());
 
-        // const props = {
-        //     url,
-        //     limit,
-        //     page,
-        //     description: null
-        // }
+    // const props = {
+    //     url,
+    //     limit,
+    //     page,
+    //     description: null
+    // }
 
-        // if(descriptionSearch.length > 2) props.description = descriptionSearch;
+    // if(descriptionSearch.length > 2) props.description = descriptionSearch;
 
-        // const { ok, data } = await getService(props);
-        // if(ok) {
-        //     const { rows, count } = data;
+    // const { ok, data } = await getService(props);
+    // if(ok) {
+    //     const { rows, count } = data;
 
-        //     dispatch(systemUserUpdateList(rows));
-        //     setTotal(count);
-        // }
+    //     dispatch(systemUserUpdateList(rows));
+    //     setTotal(count);
+    // }
 
-        dispatch(systemUserStopListLoading());
+    const users = [];
+    for (let i = 1; i <= 15; i += 1) {
+      users.push({
+        id: 1 + "",
+        name: `Usuário Fulano ${i}`,
+        email: `usuario_${i}@email.com`,
+        user: `usuario${1}`,
+        companyName: "Tofu Queijos Litd",
+        birth: new Date(`${i}/07/1990`),
+        profileImage:
+          "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/beaver.png",
+        phone: `35 9 9999-83${(i + "").padStart(2, "0")}`,
+        address: `Rua Alpha dos Maia, Nº ${i}, Brasília - DF`,
+        active: Math.floor(Math.random() * 2) > 0,
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+
+      setTotal(users.length);
     }
+    setTimeout(() => {
+      dispatch(systemUserUpdateList(users));
 
-    const handleSaveCashRegisterGroup = async (values: any) => {
-        dispatch(systemUserStartSaveLoading());
+      dispatch(systemUserStopListLoading());
+    }, 1000);
+  };
 
-        let noErrors = false;
+  const handleSaveSystemUser = async (values: any) => {
+    dispatch(systemUserStartSaveLoading());
 
-        // if (seletedUpdate !== '') {
-        //    const { ok } = await putService({
-        //         id: seletedUpdate,
-        //         url,
-        //         values,
-        //     });
+    console.log("modal save", values);
 
-        //     noErrors = ok;
-        // }
-        // else {
-        //     const { ok } = await postService({
-        //         url,
-        //         values,
-        //     });
+    let noErrors = false;
 
-        //     noErrors = ok;
-        // }
+    // if (seletedUpdate !== '') {
+    //    const { ok } = await putService({
+    //         id: seletedUpdate,
+    //         url,
+    //         values,
+    //     });
 
-        dispatch(systemUserStopSaveLoading());
+    //     noErrors = ok;
+    // }
+    // else {
+    //     const { ok } = await postService({
+    //         url,
+    //         values,
+    //     });
 
-        if(noErrors) {
-            handleClearForm();
-    
-            setReloadList(reloadList + 1);
-        }
-    }
+    //     noErrors = ok;
+    // }
 
-    const handleSelectCashRegisterGroup = (index: number) => {
-        const { 
-            id, active, name, birth, companyName, email, profileImage,
-            user, phone
-        } = systemUserListOnReducer.list[index];
+    setTimeout(() => {
+      if (noErrors) {
+        setReloadList(reloadList + 1);
+      }
 
-        setSelectedUpdate(id);
+      dispatch(systemUserStopSaveLoading());
+      setShowModal(false);
+      setSelectedUpdate({});
+    }, 2000);
+  };
 
-        form.setFieldsValue({
-            active, name, birth, companyName, email, 
-            profileImage, user, phone
-        });
+  const handleSelectSystemUser = (index: number) => {
+    setSelectedUpdate(systemUserListOnReducer.list[index]);
 
-        setShowModal(true);
-    }
+    setShowModal(true);
+  };
 
-    const handleSearchCashRegisterGroup = (description: string) => {
-        setDescriptionSearch(description);
-        setPage(1);
-        setReloadList(reloadList +1);
-    }
+  const handleSearchCashRegisterGroup = (description: string) => {
+    setDescriptionSearch(description);
+    setPage(1);
+    setReloadList(reloadList + 1);
+  };
 
-    const handleDeleteCashRegisterGroup = async (index: number) => {
-        dispatch(systemUserStartItemActionLoading(index));
+  const handleDeleteSystemUser = async (index: number) => {
+    dispatch(systemUserStartItemActionLoading(index));
 
-        // const { id } = systemUserListOnReducer.list[index];
+    console.log("delete");
 
-        // const { ok } = await deleteService({
-        //     id, 
-        //     url,
-        // });
+    // const { id } = systemUserListOnReducer.list[index];
 
-        dispatch(systemUserStopItemActionLoading(index));
+    // const { ok } = await deleteService({
+    //     id,
+    //     url,
+    // });
 
-        // if(ok) setReloadList(reloadList + 1);
-    }
+    setTimeout(() => {
+      dispatch(systemUserStopItemActionLoading(index));
+    }, 2000);
 
-    const handleClearForm = () => {
-        setShowModal(false)
-        form.resetFields();
-        setSelectedUpdate('');
-    }
+    // if(ok) setReloadList(reloadList + 1);
+  };
 
-    return (
-        <div id="system-user-page">
-            <Spin spinning={systemUserListOnReducer.loadingList}>
-                <div className="system-user-search">
-                    <InputSearch
-                        placeholder="Nome do usuário"
-                        onSearch={(e) => handleSearchCashRegisterGroup(e)}
-                    />
+  const handleChangeStatusSystemUser = async (index: number) => {
+    dispatch(systemUserStartItemActionLoading(index));
 
-                    <ButtonPrimary onClick={() => setShowModal(true)}>
-                        Novo
-                    </ButtonPrimary>
-                </div>
+    console.log("change status");
 
-                <div className="system-user-list">
-                    {
-                        total > 0
-                            ? systemUserListOnReducer.list.map((item, index) => (
-                                <h2>{item.name}</h2>
-                                // <ListItem
-                                //     key={index}
-                                //     title={item.description}
-                                //     onEdit={() => handleSelectCashRegisterGroup(index)}
-                                //     onDelete={() => handleDeleteCashRegisterGroup(index)}
-                                //     onDeleteLoad={item.loadingDelete}
-                                // />
-                            ))
+    // const { id } = systemUserListOnReducer.list[index];
 
-                            : <Empty description="Esta lista está vazia." />
-                    }
-                </div>
+    // const { ok } = await deleteService({
+    //     id,
+    //     url,
+    // });
 
-                <Pagination
-                    defaultCurrent={page}
-                    defaultPageSize={limit}
-                    onChange={(e) => setPage(e)}
-                    onShowSizeChange={(e, f) => setLimit(f)}
-                    total={total}
-                />
-            </Spin>
+    setTimeout(() => {
+      dispatch(systemUserStopItemActionLoading(index));
+    }, 2000);
 
-            <Modal
-                title="Novo grupo para registro de caixa"
-                isVisible={showModal}
-                onOk={() => { buttonRef.current.click() }}
-                onCancel={handleClearForm}
-                confirmLoading={systemUserListOnReducer.loadingSave}
-            >
-                <Form
-                    onFinish={handleSaveCashRegisterGroup}
-                    form={form}
-                >
-                    <Form.Item
-                        name="description"
-                        rules={[{ required: true, message: "Insira uma descrição" }]}
-                    >
-                        <Input
-                            placeholder="Descrição"
-                        />
-                    </Form.Item>
+    // if(ok) setReloadList(reloadList + 1);
+  };
 
-                    <Form.Item
-                        name="observation"
-                    >
-                        <InputTextArea
-                            placeholder="Observação"
-                        />
-                    </Form.Item>
+  const handleCloseModalProfile = () => {
+    setShowModal(false);
+    setSelectedUpdate({});
+  };
 
-                    <button ref={buttonRef} type="submit" hidden />
-                </Form>
-            </Modal>
+  return (
+    <div id="system-user-page">
+      <Spin spinning={systemUserListOnReducer.loadingList}>
+        <div className="system-user-search">
+          <InputSearch
+            placeholder="Nome do usuário"
+            onSearch={(e) => handleSearchCashRegisterGroup(e)}
+          />
+
+          <ButtonPrimary onClick={() => setShowModal(true)}>Novo</ButtonPrimary>
         </div>
-    )
+
+        <div className="system-user-list">
+          {total > 0 ? (
+            systemUserListOnReducer.list.map((item, index) => {
+              const subtitle = item.active ? (
+                <>
+                  <FaCheckCircle color="green" /> <span>Ativo</span>
+                </>
+              ) : (
+                <>
+                  <FaBan color="yellow" /> <span>Inativo</span>
+                </>
+              );
+
+              return (
+                <ListItem
+                  key={index + ""}
+                  title={item.name}
+                  subtitle={subtitle}
+                  activeItem={item.active}
+                  icon={item.profileImage && <img src={item.profileImage} alt="" />}
+                  onEdit={() => handleSelectSystemUser(index)}
+                  onChangeStatus={() => handleChangeStatusSystemUser(index)}
+                  onDelete={() => handleDeleteSystemUser(index)}
+                  onActionLoad={item.loadingItemAction}
+                />
+              );
+            })
+          ) : (
+            <Empty description="Esta lista está vazia." />
+          )}
+        </div>
+
+        <Pagination
+          defaultCurrent={page}
+          defaultPageSize={limit}
+          onChange={(e) => setPage(e)}
+          onShowSizeChange={(e, f) => setLimit(f)}
+          total={total}
+        />
+      </Spin>
+
+      <ModalProfile
+        isVisible={showModal}
+        loading={systemUserListOnReducer.loadingSave}
+        onCancel={handleCloseModalProfile}
+        onOk={handleSaveSystemUser}
+        {...seletedUpdate}
+      />
+    </div>
+  );
 }

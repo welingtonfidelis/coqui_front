@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Button, Collapse, Dropdown, Form, Badge } from "antd";
+import { Dropdown, Badge } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { UserOutlined, LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined } from "@ant-design/icons";
 import {
   FaCommentDots,
   FaBullhorn,
@@ -17,6 +17,7 @@ import ChatPage from "../chat";
 import SystemUserPage from "../system-user";
 import Router from "next/router";
 import { Modal } from "../../components/modal";
+import { ModalProfile } from "../../components/modalProfile";
 import { Menu } from "../../components/menu";
 import {
   userLogout,
@@ -24,17 +25,8 @@ import {
   userStopProfileLoading,
   userUpdateProfile,
 } from "../../store/user/actions";
-import { DatePicker } from "../../components/datePicker";
-import {
-  Input,
-  InputMask,
-  InputPassword,
-  InputTextArea,
-} from "../../components/input";
 import { getService, patchService } from "../../services/apiRequest";
 import { UserReducerInterface } from "../../store/user/model";
-import moment from "moment";
-import { ButtonPrimary } from "../../components/button";
 import {
   conversationStartListLoading,
   conversationUpdateList,
@@ -43,15 +35,14 @@ import {
   chatUsersStartListLoading,
   chatUsersUpdateList,
 } from "../../store/chatUsers/actions";
-import { ConversationItemReducerInterface, ConversationReducerInterface } from "../../store/conversation/model";
+import { 
+  ConversationReducerInterface 
+} from "../../store/conversation/model";
 
 export default function Home() {
   const [selectedPage, setSelectedPage] = useState(<NewsPage />);
   const [showModal, setShowModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-
-  const [formProfile] = Form.useForm();
-  const [formProfilePassword] = Form.useForm();
 
   const dispatch = useDispatch();
   const userInfo = useSelector(
@@ -267,19 +258,6 @@ export default function Home() {
   };
 
   const handleOpenProfile = () => {
-    console.log(userInfo);
-
-    formProfile.setFieldsValue({
-      ...userInfo,
-      birth: moment(userInfo.birth),
-    });
-
-    formProfilePassword.setFieldsValue({
-      old_password: null,
-      new_password: null,
-      confirm_password: null,
-    });
-
     setShowProfileModal(true);
   };
 
@@ -298,6 +276,8 @@ export default function Home() {
     });
 
     if (ok) dispatch(userUpdateProfile({ loadingProfile: false, ...values }));
+
+    dispatch(userStopProfileLoading());
   };
 
   const handleSavePassword = async (values: any) => {
@@ -325,11 +305,6 @@ export default function Home() {
     });
 
     if (ok) {
-      formProfilePassword.setFieldsValue({
-        old_password: null,
-        new_password: null,
-        confirm_password: null,
-      });
     }
 
     dispatch(userStopProfileLoading());
@@ -376,121 +351,15 @@ export default function Home() {
         Deseja realmente sair do sistema?
       </Modal>
 
-      <Modal
-        className="modal-profile"
-        title="Perfil"
+      <ModalProfile
         isVisible={showProfileModal}
-        onOk={() => {
-          formProfile.submit();
-        }}
+        loading={userInfo.loadingProfile}
         onCancel={() => setShowProfileModal(false)}
-        confirmLoading={userInfo.loadingProfile}
-      >
-        <Form onFinish={handleSaveProfile} form={formProfile}>
-          <div className="profile-header">
-            {userInfo.profileImage ? (
-              <img src={userInfo.profileImage} alt="" />
-            ) : (
-              <UserOutlined />
-            )}
-
-            <div className="col">
-              <Form.Item name="user">
-                <Input disabled title="Usuário" />
-              </Form.Item>
-
-              <Form.Item name="email">
-                <Input disabled title="Email" />
-              </Form.Item>
-
-              <Form.Item name="companyName">
-                <Input disabled title="Nome da Empresa" />
-              </Form.Item>
-            </div>
-          </div>
-
-          <div className="profile-main">
-            <Form.Item
-              name="name"
-              rules={[{ required: true, message: "Insira um nome" }]}
-            >
-              <Input placeholder="Seu nome" title="Seu nome" />
-            </Form.Item>
-
-            <div className="col">
-              <Form.Item name="phone">
-                <InputMask
-                  mask="(99) 9 9999-9999"
-                  type="tel"
-                  placeholder="Seu telefone"
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="birth"
-                rules={[{ required: true, message: "Escolha uma data" }]}
-              >
-                <DatePicker placeholder="Data de nascimento" />
-              </Form.Item>
-            </div>
-
-            <Form.Item name="address">
-              <InputTextArea placeholder="Seu endereço" title="Seu endereço" />
-            </Form.Item>
-          </div>
-        </Form>
-
-        <div className="profile-password">
-          <Collapse accordion>
-            <Collapse.Panel header="Alterar Senha" key="1">
-              <Form onFinish={handleSavePassword} form={formProfilePassword}>
-                <Form.Item
-                  name="old_password"
-                  rules={[
-                    { required: true, message: "Insira sua senha atual" },
-                  ]}
-                >
-                  <InputPassword placeholder="Senha atual" />
-                </Form.Item>
-
-                <Form.Item
-                  name="new_password"
-                  rules={[{ required: true, message: "Insira sua nova senha" }]}
-                >
-                  <InputPassword placeholder="Senha" allowClear />
-                </Form.Item>
-
-                <Form.Item
-                  name="confirm_password"
-                  dependencies={["new_password"]}
-                  rules={[
-                    { required: true, message: "Confirme sua nova senha" },
-                    ({ getFieldValue }) => ({
-                      validator(_, value) {
-                        if (!value || getFieldValue("new_password") === value) {
-                          return Promise.resolve();
-                        }
-                        return Promise.reject(
-                          new Error("Confirme sua nova senha")
-                        );
-                      },
-                    }),
-                  ]}
-                >
-                  <InputPassword placeholder="Confirmar senha" allowClear />
-                </Form.Item>
-
-                <ButtonPrimary
-                  onClick={() => formProfilePassword.submit()}
-                  loading={userInfo.loadingProfile}
-                >
-                  Atualizar
-                </ButtonPrimary>
-              </Form>
-            </Collapse.Panel>
-          </Collapse>
-        </div>
-      </Modal>
+        onOk={handleSaveProfile}
+        onChangePassword={handleSavePassword}
+        disableFields={["user", "email"]}
+        {...userInfo}
+      />
     </div>
   );
 }

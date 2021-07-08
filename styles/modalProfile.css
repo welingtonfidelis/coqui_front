@@ -1,0 +1,57 @@
+.modal-profile .profile-header {
+    display: flex;
+    margin-bottom: 5px;
+}
+
+.modal-profile .profile-header img {
+    width: 125px;
+    height: 125px;
+    background: var(--color-tertiary-dark);
+    padding: 8px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.modal-profile .profile-header .anticon-user{
+    font-size: 10rem;
+    color: var(--color-secondary-dark);
+    border: 1px solid var(--color-tertiary-dark);
+    background: var(--color-tertiary-dark);
+    border-radius: 50%;
+    padding: 1.3rem;
+    margin-right: 10px;
+    max-height: 13rem;
+}
+
+.modal-profile .profile-header .col {
+    flex: 1;
+    align-self: center;
+}
+
+.modal-profile .profile-header .col .ant-row {
+    margin-bottom: 3px;
+}
+
+.modal-profile .profile-main .ant-row {
+    margin-bottom: 3px;
+}
+
+.modal-profile .profile-main .col {
+    display: flex;
+}
+
+.modal-profile .profile-main .col .ant-row {
+    width: 50%;
+}
+
+.modal-profile .profile-main .col .ant-row:first-child {
+    margin-right: 3px;
+}
+
+.modal-profile .profile-password .ant-row {
+    margin-bottom: 3px;
+}
+
+.modal-profile .profile-password button {
+    margin-top: 10px;
+}
