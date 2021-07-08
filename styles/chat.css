@@ -52,7 +52,11 @@
     flex-direction: column;
     padding: 6px;
     overflow: auto;
-    max-height: 78vh;
+    height: calc(100vh - 180px);
+}
+
+#chat-page .chat-messages textarea {
+  height: 50px;
 }
 
 #chat-page .ant-form {
