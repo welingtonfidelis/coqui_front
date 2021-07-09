@@ -51,7 +51,7 @@
 
 .list-item-action svg {
     font-size: 2rem;
-    color: var(--color-tertiary-dark);
+    color: gray;
     transition: .5s;
 }
 

@@ -1,14 +1,16 @@
-import { Form, Collapse } from "antd";
+import { Form, Collapse, Switch } from "antd";
 import { UserOutlined } from "@ant-design/icons";
+import { FiSun, FiMoon } from "react-icons/fi";
 
 import { Input, InputMask, InputPassword, InputTextArea } from "../input";
 import { DatePicker } from "../datePicker";
 import { Modal } from "../modal";
 import { ButtonPrimary } from "../button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import moment from "moment";
 
 interface Props {
+  id?: string;
   user?: string;
   email?: string;
   name?: string;
@@ -21,6 +23,7 @@ interface Props {
   loading: boolean;
 
   disableFields?: string[];
+  isLoggedUserProfile?: boolean;
 
   onOk: (item: any) => void;
   onCancel: () => void;
@@ -28,6 +31,8 @@ interface Props {
 }
 
 export const ModalProfile: React.FC<Props> = (props) => {
+  const [lightMode, setLightMode] = useState(false);
+
   const [formProfile] = Form.useForm();
   const [formProfilePassword] = Form.useForm();
 
@@ -37,10 +42,17 @@ export const ModalProfile: React.FC<Props> = (props) => {
         ...props,
         birth: moment(props.birth || new Date()),
       });
+
+    if (props.isLoggedUserProfile) {
+      const modeIsLight = localStorage.getItem(`coqui_theme_light`) || false;
+
+      setLightMode(modeIsLight && modeIsLight === "true");
+    }
   }, [props.isVisible]);
 
   const onCancelModal = () => {
     formProfile.setFieldsValue({
+      id: null,
       user: null,
       email: null,
       name: null,
@@ -57,6 +69,15 @@ export const ModalProfile: React.FC<Props> = (props) => {
     });
 
     props.onCancel();
+  };
+
+  const handleChangeTheme = () => {
+    setLightMode(!lightMode);
+
+    localStorage.setItem(`coqui_theme_light`, !lightMode + "");
+
+    const bodyRef = document.querySelector("body");
+    bodyRef.classList.toggle("light-mode");
   };
 
   return (
@@ -226,6 +247,16 @@ export const ModalProfile: React.FC<Props> = (props) => {
               </Form>
             </Collapse.Panel>
           </Collapse>
+
+          {props.isLoggedUserProfile && (
+            <div className="profile-mode-theme" onClick={handleChangeTheme}>
+              {lightMode ? <FiMoon /> : <FiSun />}
+              <span>
+                Alterar para o{" "}
+                <strong>modo {lightMode ? "escuro" : "claro"}</strong>
+              </span>
+            </div>
+          )}
         </div>
       )}
     </Modal>

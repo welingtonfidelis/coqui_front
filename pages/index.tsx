@@ -25,6 +25,10 @@ export default function Home() {
   );
 
   useEffect(() => {
+    const bodyRef = document.querySelector('body');
+    const lightMode = localStorage.getItem(`coqui_theme_light`);
+    if(lightMode && lightMode === 'true') bodyRef.classList.toggle('light-mode');
+    
     dispatch(userLogout());
   }, []);
 

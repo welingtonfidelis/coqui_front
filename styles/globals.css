@@ -13,6 +13,21 @@
   --color-title-dark: #fff;
   --color-subtitle-dark: #B1B1B1;
   --color-text-base-dark: #fff;
+
+  --color-error: #EC1111;
+  --color-success: #0FC000;
+  --color-warning: #E9EE09;
+}
+
+.light-mode {
+  --color-background-dark: #ebf1f3;
+  --color-primary-dark: #2D68FF;
+  --color-secondary-dark: #cfebf7;
+  --color-tertiary-dark: #00b7ff;
+  --color-title-dark: #000;
+  --color-subtitle-dark: #1B1B1E;
+  --color-text-base-dark: #000;
+
   --color-error: #EC1111;
   --color-success: #0FC000;
   --color-warning: #E9EE09;

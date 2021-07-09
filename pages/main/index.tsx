@@ -110,6 +110,10 @@ export default function Home() {
   ];
 
   useEffect(() => {
+    const bodyRef = document.querySelector('body');
+    const lightMode = localStorage.getItem(`coqui_theme_light`);
+    if(lightMode && lightMode === 'true') bodyRef.classList.toggle('light-mode');
+
     getUserProfile();
   }, []);
 
@@ -335,6 +339,7 @@ export default function Home() {
       <main>
         <div className="page-header">
           <Dropdown
+          disabled={userOnReducer.loadingProfile}
             trigger={["click"]}
             overlay={<Menu items={userMenuOptions} />}
           >
@@ -367,6 +372,7 @@ export default function Home() {
         onOk={handleSaveProfile}
         onChangePassword={handleSavePassword}
         disableFields={["user", "email"]}
+        isLoggedUserProfile={true}
         {...userOnReducer}
       />
     </div>
