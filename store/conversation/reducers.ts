@@ -92,13 +92,14 @@ const reducer = (state = initialState, action) => {
         newMessage.receiverId !== userId
           ? newMessage.receiverId
           : newMessage.senderId;
-      let countNewMessages = state.countNewMessages;
+      let countNewMessages = state.countNewMessages + 1;
+
+      if (newMessage.senderId === userId) countNewMessages = 0;
 
       if (!state.list[receiverId]) {
-        if(receiverId === userId) countNewMessages += 1;
-        
         return {
           ...state,
+          countNewMessages,
           list: {
             ...state.list,
             [receiverId]: {
@@ -111,10 +112,6 @@ const reducer = (state = initialState, action) => {
           },
         };
       }
-
-      if (state.list[receiverId].newMessage) {
-        if (receiverId !== userId) countNewMessages -= 1;
-      } else if (receiverId === userId) countNewMessages += 1;
 
       return {
         ...state,

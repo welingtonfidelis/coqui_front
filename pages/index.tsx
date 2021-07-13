@@ -2,7 +2,7 @@ import Head from "next/head";
 import Router from "next/router";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Input, InputPassword, InputTextArea } from "../components/input";
+import { Input, InputPassword } from "../components/input";
 import { ButtonPrimary } from "../components/button";
 import { UserOutlined } from "@ant-design/icons";
 import {
@@ -14,7 +14,6 @@ import {
 import { Form } from "antd";
 import { UserReducerInterface } from "../store/user/model";
 import { postService } from "../services/apiRequest";
-import { ROLES_ENUM } from "../enums/role";
 
 export default function Home() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -25,52 +24,44 @@ export default function Home() {
   );
 
   useEffect(() => {
-    const bodyRef = document.querySelector('body');
+    const bodyRef = document.querySelector("body");
     const lightMode = localStorage.getItem(`coqui_theme_light`);
-    if(lightMode && lightMode === 'true') bodyRef.classList.toggle('light-mode');
-    
+    if (lightMode && lightMode === "true")
+      bodyRef.classList.toggle("light-mode");
+
     dispatch(userLogout());
   }, []);
 
   const handleLogin = async (values: any) => {
-    // dispatch(userStartLoginLoading());
+    dispatch(userStartLoginLoading());
 
-    // const { ok, data } = await postService({
-    //   url: '/users/login',
-    //   values,
-    //   errorMessage: {
-    //     title: 'Falha!',
-    //     message: 'Houve um erro ao efetuar o login. Por favor, ' +
-    //     'confirme se seu usuário e senha estão corretos.'
-    //   },
-    //   successMessage: {
-    //     title: 'Sucesso!',
-    //     message: 'Seja bem vindo(a)'
-    //   },
-    //   validationToken: false
-    // })
+    const { ok, data } = await postService({
+      url: "/users/login",
+      values,
+      errorMessage: {
+        title: "Falha!",
+        message:
+          "Houve um erro ao efetuar o login. Por favor, " +
+          "confirme se seu usuário e senha estão corretos.",
+      },
+      successMessage: {
+        title: "Sucesso!",
+        message: "Seja bem vindo(a)",
+      },
+      validationToken: false,
+    });
 
-    // dispatch(userStopLoginLoading());
+    dispatch(userStopLoginLoading());
 
-    // if(!ok) {
-    //   setErrorMessage('Usuário ou senha incorretos');
+    if (!ok) {
+      setErrorMessage("Usuário ou senha incorretos");
 
-    //   return;
-    // }
+      return;
+    }
 
-    let role = ROLES_ENUM.USER;
-
-    if(values.user === 'gerente') role = ROLES_ENUM.MANAGER;
-    else if (values.user === 'admin') role = ROLES_ENUM.ADMIN;
-    
-    const data = {
-      token: "123123123",
-      loadingLogin: false,
-      role
-    };
-
-    dispatch(userLogin(data));
+    dispatch(userLogin({ ...data, loadingLogin: false }));
     Router.replace("/main");
+    return;
   };
 
   return (

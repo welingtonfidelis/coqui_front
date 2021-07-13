@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { ButtonPrimary } from "../../components/button";
+import { Socket } from "socket.io-client";
 import { Input, InputTextArea } from "../../components/input";
 import { ChatUserListItem } from "../../components/chatUserListItem";
 import { ChatMessageListItem } from "../../components/chatMessageListItem";
@@ -19,13 +20,22 @@ import { useEffect } from "react";
 import { maskTime } from "../../util";
 import { Form, Badge } from "antd";
 import { conversationInsertNewMessages } from "../../store/conversation/actions";
+import { OnlineUserListInterface } from "../../store/onlineUser/model";
 
-export default function Chat() {
+interface Props {
+  socket: Socket;
+}
+
+export default function Chat(props: Props) {
   const [selectedChatUser, setSelectedChatUser] =
     useState<ChatUserItemReducerInterface | null>(null);
+  const [onlineUser, setOnlineUser] = useState<OnlineUserListInterface>({
+    list: {},
+  });
 
   const [form] = Form.useForm();
 
+  const { socket } = props;
   const dispatch = useDispatch();
   const userOnReducer = useSelector(
     (state: { user: UserReducerInterface }) => state.user
@@ -33,10 +43,17 @@ export default function Chat() {
   const chatUsersOnReducer = useSelector(
     (state: { chatUsers: ChatUsersReducerInterface }) => state.chatUsers
   );
+  const onlineUsersOnReducer = useSelector(
+    (state: { onlineUser: OnlineUserListInterface }) => state.onlineUser
+  );
   const conversationOnReducer = useSelector(
     (state: { conversation: ConversationReducerInterface }) =>
       state.conversation
   );
+
+  useEffect(() => {
+    setOnlineUser(onlineUsersOnReducer);
+  }, [onlineUsersOnReducer]);
 
   const searchConversation = (chatUserName: string) => {
     // if (chatUserName.length === 0) {
@@ -63,25 +80,32 @@ export default function Chat() {
       const { message } = values;
       const senderId = userOnReducer.id;
 
-      let messageId = 0;
-      let conversationId = new Date().getTime();
-      if (conversationOnReducer.list[receiverId]) {
-        messageId = conversationOnReducer.list[receiverId].messages.length;
-        conversationId = conversationOnReducer.list[receiverId].id;
-      }
-      dispatch(
-        conversationInsertNewMessages({
-          userId: senderId,
-          message: {
-            id: messageId,
-            conversationId,
-            receiverId,
-            senderId,
-            sentTime: new Date(),
-            text: message,
-          },
-        })
-      );
+      socket.emit("send_mesage_to_user", {
+        to_user_id: receiverId,
+        message,
+        sent_time: new Date(),
+      });
+
+      // let messageId = 0;
+      // let conversationId = new Date().getTime();
+      // if (conversationOnReducer.list[receiverId]) {
+      //   messageId = conversationOnReducer.list[receiverId].messages.length;
+      //   conversationId = conversationOnReducer.list[receiverId].id;
+      // }
+
+      // dispatch(
+      //   conversationInsertNewMessages({
+      //     userId: senderId,
+      //     message: {
+      //       id: messageId,
+      //       conversationId,
+      //       receiverId,
+      //       senderId,
+      //       sentTime: new Date(),
+      //       text: message,
+      //     },
+      //   })
+      // );
 
       form.setFieldsValue({
         message: "",
@@ -145,6 +169,7 @@ export default function Chat() {
             lastMessageText,
             isSelected: selectedChatUser?.id === id,
             lastMessageDate,
+            online: onlineUser.list[item.id],
           };
 
           return <ChatUserListItem {...props} key={id} />;

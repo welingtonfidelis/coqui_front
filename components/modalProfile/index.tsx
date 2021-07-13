@@ -1,4 +1,4 @@
-import { Form, Collapse, Switch } from "antd";
+import { Form, Collapse } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { FiSun, FiMoon } from "react-icons/fi";
 

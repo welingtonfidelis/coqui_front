@@ -8,16 +8,29 @@ interface Props {
   onSelect: (item: any) => void;
   lastMessageText: string;
   lastMessageDate: string;
+  online: boolean;
 }
 
 export const ChatUserListItem: React.FC<Props> = (props) => {
   const { id, name, profileImage } = props.user;
-  const { lastMessageText, lastMessageDate, newMessageCount, onSelect, isSelected } = props;
-  const classContent = `chat-user-list-item ${isSelected ? 'chat-user-list-item-selected' : ''}`;
+  const {
+    lastMessageText,
+    lastMessageDate,
+    newMessageCount,
+    onSelect,
+    isSelected,
+    online,
+  } = props;
+  const classContent = `chat-user-list-item ${
+    isSelected ? "chat-user-list-item-selected" : ""
+  }`;
+  const classImage = `chat-user-list-item-img ${
+    online ? "chat-user-list-item-online" : "chat-user-list-item-offline"
+  }`;
 
   return (
     <div className={classContent} onClick={() => onSelect(props.user)}>
-      <div className="chat-user-list-item-img">
+      <div className={classImage}>
         <Badge dot count={newMessageCount}>
           <img src={profileImage} alt="userProfile" />
         </Badge>

@@ -40,7 +40,7 @@
 
 #login-page .login-error-message {
     text-align: center;
-    color: var(--color-text-error);
+    color: var(--color-error);
 }
 
 @media (max-width: 600px) {

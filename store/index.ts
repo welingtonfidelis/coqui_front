@@ -7,6 +7,7 @@ import newsEdit from "./newsEdit/reducers";
 import conversation from "./conversation/reducers";
 import chatUsers from "./chatUsers/reducers";
 import systemUser from "./systemUser/reducers";
+import onlineUser from "./onlineUser/reducers";
 
 const reducers = combineReducers({
   user,
@@ -14,7 +15,8 @@ const reducers = combineReducers({
   newsEdit,
   conversation,
   chatUsers,
-  systemUser
+  systemUser,
+  onlineUser
 });
 
 const makeStore = () => {

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Dropdown, Badge } from "antd";
+import { Socket } from "socket.io-client";
 import { useDispatch, useSelector } from "react-redux";
-import { LoadingOutlined, RollbackOutlined } from "@ant-design/icons";
+import { LoadingOutlined } from "@ant-design/icons";
 import {
   FaCommentDots,
   FaBullhorn,
@@ -28,8 +29,10 @@ import {
   userUpdateProfile,
 } from "../../store/user/actions";
 import { getService, patchService } from "../../services/apiRequest";
+import { socket as SocketInstance } from "../../services/socket";
 import { UserReducerInterface } from "../../store/user/model";
 import {
+  conversationInsertNewMessages,
   conversationStartListLoading,
   conversationUpdateList,
 } from "../../store/conversation/actions";
@@ -39,6 +42,9 @@ import {
 } from "../../store/chatUsers/actions";
 import { ConversationReducerInterface } from "../../store/conversation/model";
 import { ROLES_ENUM } from "../../enums/role";
+import { addOnlineUser, removeOnlineUser, updateOnlineUserList } from "../../store/onlineUser/actions";
+
+let socket: Socket = null;
 
 export default function Home() {
   const [selectedPage, setSelectedPage] = useState(<NewsPage />);
@@ -71,11 +77,14 @@ export default function Home() {
           <FaCommentDots />
         </Badge>
       ),
-      action: () => setSelectedPage(<ChatPage />),
+      action: () => setSelectedPage(<ChatPage socket={socket}/>),
     },
   ];
 
-  if (userOnReducer.role === ROLES_ENUM.MANAGER || userOnReducer.role === ROLES_ENUM.ADMIN) {
+  if (
+    userOnReducer.role === ROLES_ENUM.MANAGER ||
+    userOnReducer.role === ROLES_ENUM.ADMIN
+  ) {
     menuOptions.push(
       {
         title: "Usuários",
@@ -110,39 +119,38 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    const bodyRef = document.querySelector('body');
+    const bodyRef = document.querySelector("body");
     const lightMode = localStorage.getItem(`coqui_theme_light`);
-    if(lightMode && lightMode === 'true') bodyRef.classList.toggle('light-mode');
+    if (lightMode && lightMode === "true")
+      bodyRef.classList.toggle("light-mode");
+
+    socketConnect();
 
     getUserProfile();
+
+    getChatUsers();
+    // if (userOnReducer.name) {
+    //   getConversations();
+    // }
   }, []);
-
-  useEffect(() => {
-    if (userOnReducer.id) {
-      getConversations();
-      getChatUsers();
-    }
-  }, [userOnReducer]);
-
-  const list = [];
-  for (let i = 1; i <= 20; i += 1) {
-    list.push({
-      id: i,
-      name: `Usuário ${i}`,
-      profileImage:
-        "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/beaver.png",
-    });
-  }
 
   const getChatUsers = async () => {
     dispatch(chatUsersStartListLoading());
 
-    dispatch(
-      chatUsersUpdateList({
-        loadingList: false,
-        list,
-      })
-    );
+    const props = {
+      url: "/users/chat",
+    };
+
+    const { ok, data } = await getService(props);
+    
+    if (ok) {
+      dispatch(
+        chatUsersUpdateList({
+          loadingList: false,
+          list: data.rows.map(item => ({ ...item, profileImage: item.profile_image })),
+        })
+      );
+    }
   };
 
   const getConversations = async () => {
@@ -227,45 +235,71 @@ export default function Home() {
   const getUserProfile = async () => {
     dispatch(userStartProfileLoading());
 
-    // const props = {
-    //   url: "/users/profile",
-    // };
+    const props = {
+      url: "/users/profile",
+    };
 
-    // const { ok, data } = await getService(props);
-
-    // if (ok) {
-    //   dispatch(
-    //     userUpdateProfile({
-    //       ...data,
-    //       ongName: data.ong_name,
-    //     })
-    //   );
-    // }
-    //dispatch(userStopProfileLoading());
-
-    setTimeout(() => {
+    const { ok, data } = await getService(props);
+    
+    if (ok) {
       dispatch(
-        userUpdateProfile({
-          id: "1",
-          name: "Fulaninho Junior Silva Silva",
-          email: "fulanojunior@tofu.com.br",
-          user: "fulaninhojunior",
-          birth: new Date("1990/07/28"),
-          companyName: "Tofu Queijos Litd",
-          phone: "35999269999",
-          address: "Rua central, nº455 bairro fim, Brasília - DF",
-          profileImage:
-            "https://conversa-aqui.s3.sa-east-1.amazonaws.com/user-images/dog_1.png",
-          loadingLogin: false,
-          loadingProfile: false,
+        userUpdateProfile(data)
+      );
+    }
+    dispatch(userStopProfileLoading());
+  };
+
+  let countMessageId = 0;
+  const socketConnect = () => {
+    socket = SocketInstance.connect(userOnReducer.token);
+
+    socket.on("connect", () => {
+      console.log("connected in socket", socket);
+    });
+    
+    socket.on("online_user_list", data => {
+      dispatch(updateOnlineUserList(data));
+    });
+
+    socket.on("online_user", data => {
+      dispatch(addOnlineUser(data));
+    });
+
+    socket.on("offline_user", data => {
+      dispatch(removeOnlineUser(data));
+    });
+
+    socket.on("receive_message_from_user", data => {
+      const { from_user_id, to_user_id, message, sent_time } = data;
+
+      dispatch(
+        conversationInsertNewMessages({
+          userId: userOnReducer.id,
+          message: {
+            id: countMessageId,
+            conversationId: 1,
+            receiverId: to_user_id,
+            senderId: from_user_id,
+            sentTime: new Date(sent_time),
+            text: message,
+          },
         })
       );
-    }, 2000);
+
+      countMessageId += 1;
+    });
+    
+    socket.on("new_room", data => {
+      console.log('new room', data);
+    });
+
   };
 
   const handleLogout = () => {
     setShowModal(false);
     dispatch(userLogout());
+
+    if(socket) socket.disconnect();
 
     Router.replace("/");
   };
@@ -339,7 +373,7 @@ export default function Home() {
       <main>
         <div className="page-header">
           <Dropdown
-          disabled={userOnReducer.loadingProfile}
+            disabled={userOnReducer.loadingProfile}
             trigger={["click"]}
             overlay={<Menu items={userMenuOptions} />}
           >

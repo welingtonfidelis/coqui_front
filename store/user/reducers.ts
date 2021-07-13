@@ -86,8 +86,7 @@ const reducer = (state = initialState, action) => {
     }
 
     case UPDATE_PROFILE: {
-      const newState = { ...state, ...action.payload };
-      return newState;
+      return { ...state, ...action.payload };
     }
 
     default: {
