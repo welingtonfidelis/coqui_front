@@ -4,7 +4,7 @@ import { combineReducers, createStore } from "redux";
 import user from "./user/reducers";
 import news from "./news/reducers";
 import newsEdit from "./newsEdit/reducers";
-import conversation from "./conversation/reducers";
+import conversation from "./userConversation/reducers";
 import chatUsers from "./chatUsers/reducers";
 import systemUser from "./systemUser/reducers";
 import onlineUser from "./onlineUser/reducers";

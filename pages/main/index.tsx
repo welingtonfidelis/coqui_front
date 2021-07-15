@@ -35,12 +35,12 @@ import {
   conversationInsertNewMessages,
   conversationStartListLoading,
   conversationUpdateList,
-} from "../../store/conversation/actions";
+} from "../../store/userConversation/actions";
 import {
   chatUsersStartListLoading,
   chatUsersUpdateList,
 } from "../../store/chatUsers/actions";
-import { ConversationReducerInterface } from "../../store/conversation/model";
+import { ConversationReducerInterface } from "../../store/userConversation/model";
 import { ROLES_ENUM } from "../../enums/role";
 import { addOnlineUser, removeOnlineUser, updateOnlineUserList } from "../../store/onlineUser/actions";
 
@@ -176,54 +176,6 @@ export default function Home() {
                   sentTime: new Date(),
                   text: "Oi",
                 },
-                {
-                  id: 2,
-                  conversationId: 1,
-                  senderId: "2",
-                  receiverId: "1",
-                  sentTime: new Date(),
-                  text: "Me passa o bang lá",
-                },
-                {
-                  id: 3,
-                  conversationId: 1,
-                  senderId: "1",
-                  receiverId: "2",
-                  sentTime: new Date(),
-                  text: "Ta bem, segura ai",
-                },
-              ],
-            },
-            {
-              id: 2,
-              userIdA: "3",
-              userIdB: "1",
-              newMessage: true,
-              messages: [
-                {
-                  id: 4,
-                  conversationId: 2,
-                  senderId: "3",
-                  receiverId: "1",
-                  sentTime: new Date(),
-                  text: "Fala doido",
-                },
-                {
-                  id: 5,
-                  conversationId: 2,
-                  senderId: "3",
-                  receiverId: "1",
-                  sentTime: new Date(),
-                  text: "Eae maluco",
-                },
-                {
-                  id: 6,
-                  conversationId: 2,
-                  senderId: "1",
-                  receiverId: "3",
-                  sentTime: new Date(),
-                  text: "Vamos sair hoje? Pessoal falou que vai lá no bar do tiagão, podemos ir também",
-                },
               ],
             },
           ],
@@ -243,7 +195,7 @@ export default function Home() {
     
     if (ok) {
       dispatch(
-        userUpdateProfile(data)
+        userUpdateProfile({ ...data, profileImage: data.profile_image })
       );
     }
     dispatch(userStopProfileLoading());
@@ -287,12 +239,7 @@ export default function Home() {
       );
 
       countMessageId += 1;
-    });
-    
-    socket.on("new_room", data => {
-      console.log('new room', data);
-    });
-
+    });    
   };
 
   const handleLogout = () => {
@@ -405,7 +352,7 @@ export default function Home() {
         onCancel={() => setShowProfileModal(false)}
         onOk={handleSaveProfile}
         onChangePassword={handleSavePassword}
-        disableFields={["user", "email"]}
+        disableFields={["user", "email", "role"]}
         isLoggedUserProfile={true}
         {...userOnReducer}
       />

@@ -12,14 +12,13 @@ import {
   ConversationItemReducerInterface,
   ConversationReducerInterface,
   MessageItemReducerInterface,
-} from "../../store/conversation/model";
+} from "../../store/userConversation/model";
 import { UserReducerInterface } from "../../store/user/model";
 import { FaPaperPlane, FaSearch } from "react-icons/fa";
 import { useState } from "react";
 import { useEffect } from "react";
 import { maskTime } from "../../util";
-import { Form, Badge } from "antd";
-import { conversationInsertNewMessages } from "../../store/conversation/actions";
+import { Form } from "antd";
 import { OnlineUserListInterface } from "../../store/onlineUser/model";
 
 interface Props {
@@ -78,34 +77,12 @@ export default function Chat(props: Props) {
   const handleSendMessage = (values: any, receiverId: string) => {
     if (values && values.message && values.message.length) {
       const { message } = values;
-      const senderId = userOnReducer.id;
 
       socket.emit("send_mesage_to_user", {
         to_user_id: receiverId,
-        message,
         sent_time: new Date(),
+        message,
       });
-
-      // let messageId = 0;
-      // let conversationId = new Date().getTime();
-      // if (conversationOnReducer.list[receiverId]) {
-      //   messageId = conversationOnReducer.list[receiverId].messages.length;
-      //   conversationId = conversationOnReducer.list[receiverId].id;
-      // }
-
-      // dispatch(
-      //   conversationInsertNewMessages({
-      //     userId: senderId,
-      //     message: {
-      //       id: messageId,
-      //       conversationId,
-      //       receiverId,
-      //       senderId,
-      //       sentTime: new Date(),
-      //       text: message,
-      //     },
-      //   })
-      // );
 
       form.setFieldsValue({
         message: "",

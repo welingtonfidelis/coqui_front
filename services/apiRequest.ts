@@ -39,6 +39,7 @@ interface CreateInterface extends RequestInterface {
 interface UpdateInterface extends RequestInterface {
   id: string;
   values: object;
+  urlComplement?: string;
 }
 
 interface DeleteInterface extends RequestInterface {
@@ -192,7 +193,8 @@ export const putService = async (props: UpdateInterface) => {
 
   try {
     const Authorization = getAuthorization();
-    const response = await api.put(`${props.url}/${props.id}`, props.values, {
+    const url = `${props.url}/${props.id}${props.urlComplement ? props.urlComplement : ''}`;
+    const response = await api.put(url, props.values, {
       headers: { Authorization },
     });
 
@@ -235,7 +237,8 @@ export const patchService = async (props: UpdateInterface) => {
 
   try {
     const Authorization = getAuthorization();
-    const response = await api.patch(`${props.url}/${props.id}`, props.values, {
+    const url = `${props.url}/${props.id}${props.urlComplement ? props.urlComplement : ''}`;
+    const response = await api.patch(url, props.values, {
       headers: { Authorization },
     });
 

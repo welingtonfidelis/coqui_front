@@ -3,11 +3,13 @@ import { UserOutlined } from "@ant-design/icons";
 import { FiSun, FiMoon } from "react-icons/fi";
 
 import { Input, InputMask, InputPassword, InputTextArea } from "../input";
+import { Select } from "../select";
 import { DatePicker } from "../datePicker";
 import { Modal } from "../modal";
 import { ButtonPrimary } from "../button";
 import { useEffect, useState } from "react";
 import moment from "moment";
+import { ROLES_ENUM_PTBR } from "../../enums/role";
 
 interface Props {
   id?: string;
@@ -18,6 +20,7 @@ interface Props {
   birth?: Date;
   address?: string;
   profileImage?: string;
+  role?: string;
 
   isVisible: boolean;
   loading: boolean;
@@ -59,6 +62,7 @@ export const ModalProfile: React.FC<Props> = (props) => {
       phone: "",
       birth: null,
       address: null,
+      role: null,
       profileImage: null,
     });
 
@@ -123,6 +127,27 @@ export const ModalProfile: React.FC<Props> = (props) => {
                 }
                 placeholder="Email"
                 title="Email"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="role"
+              rules={[{ required: true, message: "Escolha um perfil" }]}
+            >
+              <Select
+                disabled={
+                  props.disableFields && props.disableFields.includes("role")
+                }
+                placeholder="Perfil"
+                loading={false}
+                list={Object.entries(ROLES_ENUM_PTBR).map((item) => {
+                  const [key, value] = item;
+
+                  return {
+                    value: value,
+                    description: key,
+                  };
+                })}
               />
             </Form.Item>
           </div>
