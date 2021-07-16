@@ -37,12 +37,18 @@ import {
   conversationUpdateList,
 } from "../../store/userConversation/actions";
 import {
+  addChatUser,
   chatUsersStartListLoading,
   chatUsersUpdateList,
+  removeChatUser,
 } from "../../store/chatUsers/actions";
 import { ConversationReducerInterface } from "../../store/userConversation/model";
 import { ROLES_ENUM } from "../../enums/role";
-import { addOnlineUser, removeOnlineUser, updateOnlineUserList } from "../../store/onlineUser/actions";
+import {
+  addOnlineUser,
+  removeOnlineUser,
+  updateOnlineUserList,
+} from "../../store/onlineUser/actions";
 
 let socket: Socket = null;
 
@@ -50,6 +56,7 @@ export default function Home() {
   const [selectedPage, setSelectedPage] = useState(<NewsPage />);
   const [showModal, setShowModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [socketStatusClass, setSocketStatusClass] = useState("socket-disconnected");
 
   const dispatch = useDispatch();
   const userOnReducer = useSelector(
@@ -77,7 +84,7 @@ export default function Home() {
           <FaCommentDots />
         </Badge>
       ),
-      action: () => setSelectedPage(<ChatPage socket={socket}/>),
+      action: () => setSelectedPage(<ChatPage socket={socket} />),
     },
   ];
 
@@ -89,7 +96,7 @@ export default function Home() {
       {
         title: "Usuários",
         icon: <FaRegUser />,
-        action: () => setSelectedPage(<SystemUserPage />),
+        action: () => setSelectedPage(<SystemUserPage socket={socket} />),
       },
       {
         title: "Editar Notícias",
@@ -142,12 +149,15 @@ export default function Home() {
     };
 
     const { ok, data } = await getService(props);
-    
+
     if (ok) {
       dispatch(
         chatUsersUpdateList({
           loadingList: false,
-          list: data.rows.map(item => ({ ...item, profileImage: item.profile_image })),
+          list: data.rows.map((item) => ({
+            ...item,
+            profileImage: item.profile_image,
+          })),
         })
       );
     }
@@ -192,7 +202,7 @@ export default function Home() {
     };
 
     const { ok, data } = await getService(props);
-    
+
     if (ok) {
       dispatch(
         userUpdateProfile({ ...data, profileImage: data.profile_image })
@@ -206,22 +216,36 @@ export default function Home() {
     socket = SocketInstance.connect(userOnReducer.token);
 
     socket.on("connect", () => {
-      console.log("connected in socket", socket);
+      setSocketStatusClass("socket-connected");
     });
-    
-    socket.on("online_user_list", data => {
+
+    socket.on('disconnect', function() {
+      setSocketStatusClass("socket-disconnected");
+    });
+
+    socket.on("online_user_list", (data) => {
       dispatch(updateOnlineUserList(data));
     });
 
-    socket.on("online_user", data => {
+    socket.on("online_user", (data) => {
       dispatch(addOnlineUser(data));
     });
 
-    socket.on("offline_user", data => {
+    socket.on("offline_user", (data) => {
       dispatch(removeOnlineUser(data));
     });
 
-    socket.on("receive_message_from_user", data => {
+    socket.on("new_user", (data) => {
+      dispatch(addChatUser({ ...data, profileImage: data.profile_image }));
+    });
+
+    socket.on("deleted_user", (data) => {
+      if (data.id === userOnReducer.id) handleLogout();
+
+      dispatch(removeChatUser(data));
+    });
+
+    socket.on("receive_message_from_user", (data) => {
       const { from_user_id, to_user_id, message, sent_time } = data;
 
       dispatch(
@@ -239,14 +263,14 @@ export default function Home() {
       );
 
       countMessageId += 1;
-    });    
+    });
   };
 
   const handleLogout = () => {
     setShowModal(false);
     dispatch(userLogout());
 
-    if(socket) socket.disconnect();
+    if (socket) socket.disconnect();
 
     Router.replace("/");
   };
@@ -319,17 +343,23 @@ export default function Home() {
 
       <main>
         <div className="page-header">
-          <Dropdown
-            disabled={userOnReducer.loadingProfile}
-            trigger={["click"]}
-            overlay={<Menu items={userMenuOptions} />}
+          <div
+            className={`outer-circle-profile ${socketStatusClass}`}
           >
-            {userOnReducer.loadingProfile ? (
-              <LoadingOutlined />
-            ) : (
-              <FaRegUserCircle />
-            )}
-          </Dropdown>
+            <div className="inner-circle-profile">
+              <Dropdown
+                disabled={userOnReducer.loadingProfile}
+                trigger={["click"]}
+                overlay={<Menu items={userMenuOptions} />}
+              >
+                {userOnReducer.loadingProfile ? (
+                  <LoadingOutlined />
+                ) : (
+                  <FaRegUserCircle />
+                )}
+              </Dropdown>
+            </div>
+          </div>
         </div>
 
         <div className="page-container">{selectedPage}</div>

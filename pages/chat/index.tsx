@@ -78,15 +78,17 @@ export default function Chat(props: Props) {
     if (values && values.message && values.message.length) {
       const { message } = values;
 
-      socket.emit("send_mesage_to_user", {
-        to_user_id: receiverId,
-        sent_time: new Date(),
-        message,
-      });
-
-      form.setFieldsValue({
-        message: "",
-      });
+      if(socket) {
+        socket.emit("send_mesage_to_user", {
+          to_user_id: receiverId,
+          sent_time: new Date(),
+          message,
+        });
+  
+        form.setFieldsValue({
+          message: "",
+        });
+      }
     }
   };
 

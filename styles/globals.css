@@ -96,6 +96,18 @@ body, input, button, textarea {
   height: 100%;
 }
 
+.icon-success {
+  color: var(--color-success);
+}
+
+.icon-warning {
+  color: var(--color-warning);
+}
+
+.icon-error {
+  color: var(--color-error);
+}
+
 @media (min-width: 700px) {
   :root {
       font-size: 62.5%;

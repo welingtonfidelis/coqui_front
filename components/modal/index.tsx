@@ -9,6 +9,7 @@ interface Props extends ModalProps {
 
 export const Modal: React.FC<Props> = (props) => (
   <ModalAntd
+    centered
     title={props.title}
     okText="Salvar"
     cancelText="Cancelar"

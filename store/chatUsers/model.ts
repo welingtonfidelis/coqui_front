@@ -9,6 +9,10 @@ export interface ChatUsersStartListReducerInterface {
   list: ChatUserItemReducerInterface[];
 }
 
+export interface RemoveChatUserReducerInterface {
+  id: string;
+}
+
 export interface ChatUsersReducerInterface {
   loadingList: boolean;
   list: {};

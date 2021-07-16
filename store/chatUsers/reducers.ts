@@ -5,7 +5,8 @@ import {
   ChatUsersStartListReducerInterface,
 } from "./model";
 import {
-  INSERT_NEW_CHAT_USER,
+  INSERT_CHAT_USER,
+  REMOVE_CHAT_USER,
   START_LIST_LOAD,
   STOP_LIST_LOAD,
   UPDATE_LIST,
@@ -49,7 +50,7 @@ const reducer = (state = initialState, action) => {
       };
     }
 
-    case INSERT_NEW_CHAT_USER: {
+    case INSERT_CHAT_USER: {
       const newChatUser: ChatUserItemReducerInterface = action.payload;
 
       if (newChatUser) {
@@ -60,6 +61,18 @@ const reducer = (state = initialState, action) => {
             [newChatUser.id]: newChatUser,
           },
         };
+      }
+    }
+
+    case REMOVE_CHAT_USER: {
+      const { id } = action.payload;
+      const list = state.list;
+
+      delete list[id];
+
+      return {
+        ...state,
+        list
       }
     }
 

@@ -27,6 +27,7 @@ interface Props {
 
   disableFields?: string[];
   isLoggedUserProfile?: boolean;
+  roleList?: { value: string; description: string }[];
 
   onOk: (item: any) => void;
   onCancel: () => void;
@@ -38,6 +39,16 @@ export const ModalProfile: React.FC<Props> = (props) => {
 
   const [formProfile] = Form.useForm();
   const [formProfilePassword] = Form.useForm();
+  const roleList =
+    props.roleList ||
+    Object.entries(ROLES_ENUM_PTBR).map((item) => {
+      const [key, value] = item;
+
+      return {
+        value: value,
+        description: key,
+      };
+    });
 
   useEffect(() => {
     if (props.isVisible)
@@ -140,14 +151,7 @@ export const ModalProfile: React.FC<Props> = (props) => {
                 }
                 placeholder="Perfil"
                 loading={false}
-                list={Object.entries(ROLES_ENUM_PTBR).map((item) => {
-                  const [key, value] = item;
-
-                  return {
-                    value: value,
-                    description: key,
-                  };
-                })}
+                list={roleList}
               />
             </Form.Item>
           </div>

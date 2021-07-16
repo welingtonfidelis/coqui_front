@@ -9,6 +9,7 @@ import "../styles/button.css";
 import "../styles/listItem.css";
 import "../styles/modal.css";
 import "../styles/modalProfile.css";
+import "../styles/modalAlert.css";
 import "../styles/login.css";
 import "../styles/resetPassword.css";
 import "../styles/changePassword.css";

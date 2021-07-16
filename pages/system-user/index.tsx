@@ -1,9 +1,10 @@
-import { Spin, Pagination, Empty } from "antd";
+import { Spin, Pagination, Empty, Result } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ButtonPrimary } from "../../components/button";
 import { InputSearch } from "../../components/input";
 import { ModalProfile } from "../../components/modalProfile";
+import { ModalAlert } from "../../components/modalAlert";
 import { ListItem } from "../../components/listItem";
 import {
   SystemUserItemReducerInterface,
@@ -26,8 +27,24 @@ import {
   systemUserUpdateList,
 } from "../../store/systemUser/actions";
 import { FaBan, FaCheckCircle } from "react-icons/fa";
+import { ROLES_ENUM } from "../../enums/role";
+import { UserReducerInterface } from "../../store/user/model";
+import { Socket } from "socket.io-client";
 
-export default function SystemUser() {
+interface Props {
+  socket: Socket;
+}
+
+interface NewUserData {
+  email: string;
+  id: string;
+  name: string;
+  password: string;
+  profile_image: string;
+  user: string;
+}
+
+export default function SystemUser(props: Props) {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
@@ -36,13 +53,28 @@ export default function SystemUser() {
     useState<SystemUserItemReducerInterface>(null);
   const [userNameSearch, setUserNameSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showModalAlert, setShowModalAlert] = useState(false);
+  const [newUserData, setNewUserData] = useState<NewUserData>(null);
 
   const dispatch = useDispatch();
 
   const systemUserListOnReducer = useSelector(
     (state: { systemUser: SystemUserListReducerInterface }) => state.systemUser
   );
+  const userOnReducer = useSelector(
+    (state: { user: UserReducerInterface }) => state.user
+  );
+
+  const { socket } = props;
   const url = "/users";
+  const roleList = [
+    { value: ROLES_ENUM.USER, description: "USUÁRIO" },
+    { value: ROLES_ENUM.MANAGER, description: "GERENTE" },
+  ];
+
+  if (userOnReducer.role === ROLES_ENUM.ADMIN) {
+    roleList.push({ value: ROLES_ENUM.ADMIN, description: "ADMINISTRADOR" });
+  }
 
   useEffect(() => {
     getSystemUserList();
@@ -90,15 +122,22 @@ export default function SystemUser() {
 
       noErrors = ok;
     } else {
-      const { ok } = await postService({
+      const { ok, data } = await postService({
         url,
         values: { ...values, active: true },
       });
 
+      if (socket) {
+        socket.emit("new_user", data);
+      }
+
+      setNewUserData(data);
+      setShowModalAlert(true);
+
       noErrors = ok;
     }
 
-    if(noErrors) {
+    if (noErrors) {
       handleCloseModalProfile();
       setReloadList(reloadList + 1);
     }
@@ -124,11 +163,17 @@ export default function SystemUser() {
     const { id } = systemUserListOnReducer.list[index];
 
     const { ok } = await deleteService({
-        id,
-        url,
+      id,
+      url,
     });
-    
-    if(ok) setReloadList(reloadList + 1);
+
+    if (ok) {
+      if (socket) {
+        socket.emit("deleted_user", { id });
+      }
+
+      setReloadList(reloadList + 1);
+    }
 
     dispatch(systemUserStopItemActionLoading(index));
   };
@@ -139,13 +184,19 @@ export default function SystemUser() {
     const { id, active } = systemUserListOnReducer.list[index];
 
     const { ok } = await patchService({
-        id,
-        url,
-        urlComplement: '/status',
-        values: { status: !active }
+      id,
+      url,
+      urlComplement: "/status",
+      values: { status: !active },
     });
-    
-    if(ok) setReloadList(reloadList + 1);
+
+    if (ok) {
+      if (socket && active) {
+        socket.emit("deleted_user", { id });
+      }
+
+      setReloadList(reloadList + 1);
+    }
 
     dispatch(systemUserStopItemActionLoading(index));
   };
@@ -209,14 +260,35 @@ export default function SystemUser() {
           total={total}
         />
       </Spin>
-
       <ModalProfile
         isVisible={showModal}
         loading={systemUserListOnReducer.loadingSave}
         onCancel={handleCloseModalProfile}
         onOk={handleSaveSystemUser}
+        roleList={roleList}
         {...seletedUpdate}
       />
+
+      <ModalAlert
+        isVisible={showModalAlert}
+        type={"success"}
+        onOk={() => setShowModalAlert(false)}
+        title="Criado com sucesso!"
+        subtitle="O novo usuário foi criado com sucesso. Abaixo estão as informações para seu primeiro acesso ao sistema."
+      >
+        {newUserData && (
+          <>
+            <br /> Usuário: <strong>{newUserData.user}</strong>
+            <br /> Email: <strong>{newUserData.email}</strong>
+            <br /> Senha: <strong>{newUserData.password}</strong>
+            <p />
+            <p>
+              <strong>IMPORTANTE:</strong> O usuário deve atualizar esta senha o
+              mais breve possível através de seu perfil no sistema.
+            </p>
+          </>
+        )}
+      </ModalAlert>
     </div>
   );
 }
