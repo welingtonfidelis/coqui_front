@@ -4,33 +4,33 @@ import {
   STOP_SAVE_LOAD, START_ITEM_ACTION_LOAD, STOP_ITEM_ACTION_LOAD 
 } from "./types";
 
-export const newsStartListLoading = () => ({
+export const newsEditStartListLoading = () => ({
   type: START_LIST_LOAD,
 });
 
-export const newsStopListLoading = () => ({
+export const newsEditStopListLoading = () => ({
   type: STOP_LIST_LOAD,
 });
 
-export const newsUpdateList = (payload: NewsItemReducerInterface[]) => ({
+export const newsEditUpdateList = (payload: NewsItemReducerInterface[]) => ({
   type: UPDATE_LIST,
   payload,
 });
 
-export const newsStartSaveLoading = () => ({
+export const newsEditStartSaveLoading = () => ({
   type: START_SAVE_LOAD,
 });
 
-export const newsStopSaveLoading = () => ({
+export const newsEditStopSaveLoading = () => ({
   type: STOP_SAVE_LOAD,
 });
 
-export const newsStartItemActionLoading = (payload: number) => ({
+export const newsEditStartItemActionLoading = (payload: number) => ({
   type: START_ITEM_ACTION_LOAD,
   payload
 });
 
-export const newsStopItemActionLoading = (payload: number) => ({
+export const newsEditStopItemActionLoading = (payload: number) => ({
   type: STOP_ITEM_ACTION_LOAD,
   payload
 });

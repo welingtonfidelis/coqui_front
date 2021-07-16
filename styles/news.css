@@ -10,8 +10,14 @@
   justify-content: center;
 }
 
-#news-page .news-content {
-  height: calc(100vh - 45px);
+#news-page main {
+  height: calc(100vh - 95px);
+  display: flex;
+
+}
+
+#news-page main .news-content {
+  flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
@@ -19,6 +25,11 @@
   grid-template-areas:
     ". ."
     ". .";
+}
+
+#news-page main .ant-pagination {
+  align-self: center;
+  margin-top: 8px;
 }
 
 #news-page .card {

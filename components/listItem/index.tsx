@@ -28,16 +28,28 @@ export const ListItem: React.FC<Props> = (props) => (
         (props.onActionLoad ? (
           <LoadingOutlined />
         ) : (
-          <FaPen onClick={props.onEdit} title="Editar" />
+          <FaPen
+            onClick={props.onEdit}
+            title="Editar"
+            className="icon-success"
+          />
         ))}
 
       {props.onChangeStatus &&
         (props.onActionLoad ? (
           <LoadingOutlined />
         ) : props.activeItem ? (
-          <FaBan onClick={props.onChangeStatus} title="Desativar" />
+          <FaBan
+            onClick={props.onChangeStatus}
+            title="Desativar"
+            className="icon-warning"
+          />
         ) : (
-          <FaCheckCircle onClick={props.onChangeStatus} title="Ativar" />
+          <FaCheckCircle
+            onClick={props.onChangeStatus}
+            title="Ativar"
+            className="icon-warning"
+          />
         ))}
 
       {props.onDelete && (
@@ -51,7 +63,7 @@ export const ListItem: React.FC<Props> = (props) => (
           {props.onActionLoad ? (
             <LoadingOutlined />
           ) : (
-            <FaTrash title="Excluir" />
+            <FaTrash title="Excluir" className="icon-error" />
           )}
         </Popconfirm>
       )}

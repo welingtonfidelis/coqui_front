@@ -49,6 +49,8 @@ import {
   removeOnlineUser,
   updateOnlineUserList,
 } from "../../store/onlineUser/actions";
+import { EventEmitter } from "events";
+import { startEventEmitter } from "../../services/auth";
 
 let socket: Socket = null;
 
@@ -56,8 +58,11 @@ export default function Home() {
   const [selectedPage, setSelectedPage] = useState(<NewsPage />);
   const [showModal, setShowModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [socketStatusClass, setSocketStatusClass] = useState("socket-disconnected");
+  const [socketStatusClass, setSocketStatusClass] = useState(
+    "socket-disconnected"
+  );
 
+  const eventEmitter = new EventEmitter();
   const dispatch = useDispatch();
   const userOnReducer = useSelector(
     (state: { user: UserReducerInterface }) => state.user
@@ -125,11 +130,17 @@ export default function Home() {
     },
   ];
 
+  eventEmitter.on("socket:disconnect", () => {
+    if (socket) socket.disconnect();
+  });
+
   useEffect(() => {
     const bodyRef = document.querySelector("body");
     const lightMode = localStorage.getItem(`coqui_theme_light`);
     if (lightMode && lightMode === "true")
       bodyRef.classList.toggle("light-mode");
+
+    startEventEmitter(eventEmitter);
 
     socketConnect();
 
@@ -213,13 +224,13 @@ export default function Home() {
 
   let countMessageId = 0;
   const socketConnect = () => {
-    socket = SocketInstance.connect(userOnReducer.token);
+    socket = SocketInstance.connect();
 
     socket.on("connect", () => {
       setSocketStatusClass("socket-connected");
     });
 
-    socket.on('disconnect', function() {
+    socket.on("disconnect", function () {
       setSocketStatusClass("socket-disconnected");
     });
 
@@ -343,9 +354,7 @@ export default function Home() {
 
       <main>
         <div className="page-header">
-          <div
-            className={`outer-circle-profile ${socketStatusClass}`}
-          >
+          <div className={`outer-circle-profile ${socketStatusClass}`}>
             <div className="inner-circle-profile">
               <Dropdown
                 disabled={userOnReducer.loadingProfile}

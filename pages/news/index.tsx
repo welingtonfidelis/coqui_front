@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Spin, Empty } from "antd";
+import { useEffect, useState } from "react";
+import { Spin, Empty, Pagination } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
   newsStartListLoading,
@@ -8,73 +8,74 @@ import {
 } from "../../store/news/actions";
 import { NewsListReducerInterface } from "../../store/news/model";
 import { maskDate } from "../../util";
+import { getService } from "../../services/apiRequest";
 
 export default function News() {
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(30);
+  const [total, setTotal] = useState(0);
+
   const dispatch = useDispatch();
   const newsInfo = useSelector(
     (state: { news: NewsListReducerInterface }) => state.news
   );
 
-  const images = [
-    "https://images.unsplash.com/photo-1621569901036-f3733e72d312?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1624487926326-41f8e4c0a0d3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1624059729855-4296e3f5c640?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1624472896340-08dda9938113?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-    "https://images.unsplash.com/photo-1624421980204-22e40117494f?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80",
-  ];
-
-  const data = images.map((item, index) => ({
-    id: index + "",
-    title: `Notícia ${index + 1}`,
-    description: `Descrição da notícia blablablabla ${item}`,
-    image: item,
-    createdAt: new Date(),
-  }));
-
   useEffect(() => {
     getNews();
-  }, []);
+  }, [page, limit]);
 
   const getNews = async () => {
     dispatch(newsStartListLoading());
 
-    // const props = {
-    //   url: "/users/profile",
-    // };
+    const props = {
+      url: "/news/unexpired",
+      limit,
+      page,
+    };
 
-    // const { ok, data } = await getService(props);
+    const { ok, data } = await getService(props);
 
-    // if (ok) {
-    //   dispatch(
-    //     userUpdateProfile({
-    //       ...data,
-    //       ongName: data.ong_name,
-    //     })
-    //   );
-    // }
-    //dispatch(newsStoptListLoading());
+    if (ok) {
+      const { rows, count } = data;
 
-    setTimeout(() => {
-      dispatch(newsUpdateList(data));
+      setTotal(count);
 
-      dispatch(newsStopListLoading());
-    }, 3000);
+      dispatch(
+        newsUpdateList(
+          rows.map((item) => ({
+            ...item,
+            createdAt: new Date(item.created_at),
+            expiresIn: new Date(item.expires_in),
+          }))
+        )
+      );
+    }
+    dispatch(newsStopListLoading());
   };
 
   return (
     <div id="news-page">
       <Spin spinning={newsInfo.loadingList}>
-        {newsInfo.list.length ? (
-          <div className="news-content">
-            {newsInfo.list.map((item, index) => (
-              <div className="card" key={index + ""}>
-                <p>Publicado em {maskDate(item.createdAt)}</p>
-                <h3>{item.title}</h3>
-                {/* <img src={item.image} alt="" /> */}
-                <span>{item.description}</span>
-              </div>
-            ))}
-          </div>
+        {total > 0 ? (
+          <main>
+            <div className="news-content">
+              {newsInfo.list.map((item, index) => (
+                <div className="card" key={index + ""}>
+                  <p>Publicado em {maskDate(item.createdAt)}</p>
+                  <h3>{item.title}</h3>
+                  <span>{item.description}</span>
+                </div>
+              ))}
+            </div>
+
+            <Pagination
+              defaultCurrent={page}
+              defaultPageSize={limit}
+              onChange={(e) => setPage(e)}
+              onShowSizeChange={(e, f) => setLimit(f)}
+              total={total}
+            />
+          </main>
         ) : (
           <Empty description="Esta lista está vazia." />
         )}

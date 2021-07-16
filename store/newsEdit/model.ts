@@ -2,7 +2,6 @@ export interface NewsItemReducerInterface {
   id: string;
   title: string;
   description: string;
-  image?: string;
   expiresIn: Date;
   createdAt: Date;
 

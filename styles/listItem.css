@@ -51,21 +51,11 @@
 
 .list-item-action svg {
     font-size: 2rem;
-    color: gray;
     transition: .5s;
+    filter: grayscale(1);
 }
 
-.list-item-action svg:nth-child(1):hover {
+.list-item-action svg:hover {
     cursor: pointer;
-    color: var(--color-primary-dark);
-}
-
-.list-item-action svg:nth-child(2):hover {
-    cursor: pointer;
-    color: var(--color-warning);
-}
-
-.list-item-action svg:nth-child(3):hover {
-    cursor: pointer;
-    color: var(--color-error);
+    filter: none;
 }

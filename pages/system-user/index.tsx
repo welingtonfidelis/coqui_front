@@ -1,4 +1,4 @@
-import { Spin, Pagination, Empty, Result } from "antd";
+import { Spin, Pagination, Empty } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ButtonPrimary } from "../../components/button";
@@ -218,47 +218,51 @@ export default function SystemUser(props: Props) {
           <ButtonPrimary onClick={() => setShowModal(true)}>Novo</ButtonPrimary>
         </div>
 
-        <div className="system-user-list">
-          {total > 0 ? (
-            systemUserListOnReducer.list.map((item, index) => {
-              const subtitle = item.active ? (
-                <>
-                  <FaCheckCircle color="green" /> <span>Ativo</span>
-                </>
-              ) : (
-                <>
-                  <FaBan color="yellow" /> <span>Inativo</span>
-                </>
-              );
+        {total > 0 ? (
+          <main>
+            <div className="system-user-list">
+              {systemUserListOnReducer.list.map((item, index) => {
+                const subtitle = item.active ? (
+                  <>
+                    <FaCheckCircle color="green" /> <span>Ativo</span>
+                  </>
+                ) : (
+                  <>
+                    <FaBan color="yellow" /> <span>Inativo</span>
+                  </>
+                );
 
-              return (
-                <ListItem
-                  key={index + ""}
-                  title={item.name}
-                  subtitle={subtitle}
-                  activeItem={item.active}
-                  icon={
-                    item.profileImage && <img src={item.profileImage} alt="" />
-                  }
-                  onEdit={() => handleSelectSystemUser(index)}
-                  onChangeStatus={() => handleChangeStatusSystemUser(index)}
-                  onDelete={() => handleDeleteSystemUser(index)}
-                  onActionLoad={item.loadingItemAction}
-                />
-              );
-            })
-          ) : (
-            <Empty description="Esta lista está vazia." />
-          )}
-        </div>
+                return (
+                  <ListItem
+                    key={index + ""}
+                    title={item.name}
+                    subtitle={subtitle}
+                    activeItem={item.active}
+                    icon={
+                      item.profileImage && (
+                        <img src={item.profileImage} alt="" />
+                      )
+                    }
+                    onEdit={() => handleSelectSystemUser(index)}
+                    onChangeStatus={() => handleChangeStatusSystemUser(index)}
+                    onDelete={() => handleDeleteSystemUser(index)}
+                    onActionLoad={item.loadingItemAction}
+                  />
+                );
+              })}
+            </div>
 
-        <Pagination
-          defaultCurrent={page}
-          defaultPageSize={limit}
-          onChange={(e) => setPage(e)}
-          onShowSizeChange={(e, f) => setLimit(f)}
-          total={total}
-        />
+            <Pagination
+              defaultCurrent={page}
+              defaultPageSize={limit}
+              onChange={(e) => setPage(e)}
+              onShowSizeChange={(e, f) => setLimit(f)}
+              total={total}
+            />
+          </main>
+        ) : (
+          <Empty description="Esta lista está vazia." />
+        )}
       </Spin>
       <ModalProfile
         isVisible={showModal}

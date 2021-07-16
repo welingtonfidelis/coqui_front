@@ -1,11 +1,12 @@
 import { io } from "socket.io-client";
+import { LOCAL_STORAGE_ENUM } from "../components/enums/localStorage";
 
 const socket = {
-  connect(token: string, query: any = {}) {
+  connect(query: any = {}) {
     const url = process.env.SOCKET_HOST;
     
     return io(url, {
-      auth: { token },
+      auth: { token: localStorage.getItem(LOCAL_STORAGE_ENUM.TOKEN) },
       query,
     })
   }

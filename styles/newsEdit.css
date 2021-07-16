@@ -1,21 +1,21 @@
-#system-user-page {
+#news-edit-page {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-#system-user-page .ant-spin-container {
+#news-edit-page .ant-spin-container {
   display: flex;
   flex-direction: column;
 }
 
-#system-user-page main {
+#news-edit-page main {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
 
-#system-user-page main .system-user-list {
+#news-edit-page main .news-edit-list {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -23,7 +23,7 @@
   justify-content: flex-start;
 }
 
-#system-user-page .ant-empty {
+#news-edit-page .ant-empty {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -31,7 +31,7 @@
   align-items: center;
 }
 
-#system-user-page .system-user-search {
+#news-edit-page .news-edit-search {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -39,24 +39,24 @@
   margin-bottom: 8px;
 }
 
-#system-user-page .system-user-search .input-simple {
+#news-edit-page .news-edit-search .input-simple {
   width: 40rem;
 }
 
-#system-user-page .system-user-search .button-simple {
+#news-edit-page .news-edit-search .button-simple {
   width: 10rem;
 }
 
-#system-user-page .ant-pagination {
+#news-edit-page .ant-pagination {
   align-self: center;
 }
 
 @media (max-width: 600px) {
-  #system-user-page .system-user-search {
+  #news-edit-page .news-edit-search {
     flex-direction: column;
   }
 
-  #system-user-page .system-user-search .button-simple {
+  #news-edit-page .news-edit-search .button-simple {
     width: 100%;
     margin-top: 4px;
   }

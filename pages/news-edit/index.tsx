@@ -1,5 +1,5 @@
 import { Spin, Pagination, Empty, Form } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ButtonPrimary } from "../../components/button";
 import { InputSearch } from "../../components/input";
@@ -13,32 +13,30 @@ import {
   getService,
   putService,
 } from "../../services/apiRequest";
-import { FaBan, FaCheckCircle } from "react-icons/fa";
 import {
   NewsItemReducerInterface,
   NewsListReducerInterface,
 } from "../../store/newsEdit/model";
 import {
-  newsStartItemActionLoading,
-  newsStartListLoading,
-  newsStartSaveLoading,
-  newsStopItemActionLoading,
-  newsStopListLoading,
-  newsStopSaveLoading,
-  newsUpdateList,
+  newsEditUpdateList,
+  newsEditStartItemActionLoading,
+  newsEditStartListLoading,
+  newsEditStartSaveLoading,
+  newsEditStopListLoading,
+  newsEditStopSaveLoading,
 } from "../../store/newsEdit/actions";
 import { maskDate } from "../../util";
 import moment from "moment";
 
-export default function SystemUser() {
+export default function NewsEdit() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
   const [reloadList, setReloadList] = useState(0);
-  const [seletedUpdate, setSelectedUpdate] = useState<
-    NewsItemReducerInterface | {}
-  >({});
-  const [descriptionSearch, setDescriptionSearch] = useState("");
+  const [selectedUpdate, setSelectedUpdate] = useState<
+    NewsItemReducerInterface
+  >(null);
+  const [titleSearch, setTitleSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
 
   const [form] = Form.useForm();
@@ -47,139 +45,125 @@ export default function SystemUser() {
   const newsListOnReducer = useSelector(
     (state: { newsEdit: NewsListReducerInterface }) => state.newsEdit
   );
-  const url = "/cash-register-groups";
+  const url = "/news";
 
   useEffect(() => {
     getNewsList();
   }, [page, limit, reloadList]);
 
   const getNewsList = async () => {
-    dispatch(newsStartListLoading());
+    dispatch(newsEditStartListLoading());
 
-    // const props = {
-    //     url,
-    //     limit,
-    //     page,
-    //     description: null
-    // }
+    const props = {
+      url,
+      limit,
+      page,
+      title: null,
+    };
 
-    // if(descriptionSearch.length > 2) props.description = descriptionSearch;
+    if (titleSearch.length > 3) props.title = titleSearch;
 
-    // const { ok, data } = await getService(props);
-    // if(ok) {
-    //     const { rows, count } = data;
+    const { ok, data } = await getService(props);
+    if (ok) {
+      const { rows, count } = data;
+      setTotal(count);
 
-    //     dispatch(systemUserUpdateList(rows));
-    //     setTotal(count);
-    // }
-
-    const news = [];
-    for (let i = 1; i <= 15; i += 1) {
-      news.push({
-        id: i,
-        title: `Notícia ${i}`,
-        description: `Notícia ${i} bla bla bla blab lablbalbalbal`,
-        image: "",
-        expiresIn: new Date(`2021/07/${i}`),
-        createdAt: new Date(`2021/06/${i}`),
-        loadingItemAction: false,
-      });
+      dispatch(
+        newsEditUpdateList(
+          rows.map((item) => ({
+            ...item,
+            expiresIn: new Date(item.expires_in),
+            createdAt: new Date(item.created_at),
+          }))
+        )
+      );
+      setTotal(count);
     }
-    setTimeout(() => {
-      dispatch(newsUpdateList(news));
 
-      dispatch(newsStopListLoading());
-
-      setTotal(news.length);
-    }, 1000);
+    dispatch(newsEditStopListLoading());
   };
 
   const handleSaveNews = async (values: any) => {
-    dispatch(newsStartSaveLoading());
-
-    console.log("modal save", values);
+    dispatch(newsEditStartSaveLoading());
 
     let noErrors = false;
 
-    // if (seletedUpdate !== '') {
-    //    const { ok } = await putService({
-    //         id: seletedUpdate,
-    //         url,
-    //         values,
-    //     });
+    if (selectedUpdate) {
+       const { ok } = await putService({
+            id: selectedUpdate.id,
+            url,
+            values,
+        });
 
-    //     noErrors = ok;
-    // }
-    // else {
-    //     const { ok } = await postService({
-    //         url,
-    //         values,
-    //     });
+        noErrors = ok;
+    }
+    else {
+        const { ok } = await postService({
+            url,
+            values,
+        });
 
-    //     noErrors = ok;
-    // }
+        noErrors = ok;
+    }
+
+    if (noErrors) {
+      handleCloseModalCreate();
+      setReloadList(reloadList + 1);
+    }
 
     setTimeout(() => {
       if (noErrors) {
         setReloadList(reloadList + 1);
       }
 
-      dispatch(newsStopSaveLoading());
-      setShowModal(false);
-      setSelectedUpdate({});
+      dispatch(newsEditStopSaveLoading());
     }, 2000);
   };
 
-  const handleSelectSystemUser = (index: number) => {
+  const handleSelectNews = (index: number) => {
     setSelectedUpdate(newsListOnReducer.list[index]);
 
     form.setFieldsValue({
-      ...newsListOnReducer.list[index], 
-      expires_in: moment(newsListOnReducer.list[index].expiresIn)
+      ...newsListOnReducer.list[index],
+      expires_in: moment(newsListOnReducer.list[index].expiresIn),
     });
 
     setShowModal(true);
   };
 
   const handleSearch = (description: string) => {
-    setDescriptionSearch(description);
+    setTitleSearch(description);
     setPage(1);
     setReloadList(reloadList + 1);
   };
 
-  const handleDeleteSystemUser = async (index: number) => {
-    dispatch(newsStartItemActionLoading(index));
+  const handleDeleteNews = async (index: number) => {
+    dispatch(newsEditStartItemActionLoading(index));
 
-    console.log("delete");
+    const { id } = newsListOnReducer.list[index];
 
-    // const { id } = newsListOnReducer.list[index];
+    const { ok } = await deleteService({
+        id,
+        url,
+    });
 
-    // const { ok } = await deleteService({
-    //     id,
-    //     url,
-    // });
-
-    setTimeout(() => {
-      dispatch(newsStopItemActionLoading(index));
-    }, 2000);
-
-    // if(ok) setReloadList(reloadList + 1);
+    if(ok) setReloadList(reloadList + 1);
   };
 
-  const handleCloseModalProfile = () => {
+  const handleCloseModalCreate = () => {
     setShowModal(false);
-    setSelectedUpdate({});
+    setSelectedUpdate(null);
     form.setFieldsValue({
-      title: '',
-      expires_in: '',
-      description: ''
-    })
+      title: "",
+      expires_in: "",
+      description: "",
+    });
   };
 
   return (
-    <div id="system-user-page">
+    <div id="news-edit-page">
       <Spin spinning={newsListOnReducer.loadingList}>
-        <div className="system-user-search">
+        <div className="news-edit-search">
           <InputSearch
             placeholder="Título da notícia"
             onSearch={(e) => handleSearch(e)}
@@ -188,35 +172,36 @@ export default function SystemUser() {
           <ButtonPrimary onClick={() => setShowModal(true)}>Novo</ButtonPrimary>
         </div>
 
-        <div className="system-user-list">
-          {total > 0 ? (
-            newsListOnReducer.list.map((item, index) => {
-              return (
-                <ListItem
-                  key={index + ""}
-                  title={item.title}
-                  subtitle={`Criada em: ${maskDate(
-                    item.createdAt
-                  )} - Expira em: ${maskDate(item.expiresIn)}`}
-                  //   icon={<img src={item.profileImage} alt="" />}
-                  onEdit={() => handleSelectSystemUser(index)}
-                  onDelete={() => handleDeleteSystemUser(index)}
-                  onActionLoad={item.loadingItemAction}
-                />
-              );
-            })
-          ) : (
-            <Empty description="Esta lista está vazia." />
-          )}
-        </div>
+        {total > 0 ? (
+          <main>
+            <div className="news-edit-list">
+              {newsListOnReducer.list.map((item, index) => {
+                return (
+                  <ListItem
+                    key={index + ""}
+                    title={item.title}
+                    subtitle={`Criada em: ${maskDate(
+                      item.createdAt
+                    )} - Expira em: ${maskDate(item.expiresIn)}`}
+                    onEdit={() => handleSelectNews(index)}
+                    onDelete={() => handleDeleteNews(index)}
+                    onActionLoad={item.loadingItemAction}
+                  />
+                );
+              })}
+            </div>
 
-        <Pagination
-          defaultCurrent={page}
-          defaultPageSize={limit}
-          onChange={(e) => setPage(e)}
-          onShowSizeChange={(e, f) => setLimit(f)}
-          total={total}
-        />
+            <Pagination
+              defaultCurrent={page}
+              defaultPageSize={limit}
+              onChange={(e) => setPage(e)}
+              onShowSizeChange={(e, f) => setLimit(f)}
+              total={total}
+            />
+          </main>
+        ) : (
+          <Empty description="Esta lista está vazia." />
+        )}
       </Spin>
 
       <Modal
@@ -225,7 +210,7 @@ export default function SystemUser() {
         onOk={() => {
           form.submit();
         }}
-        onCancel={handleCloseModalProfile}
+        onCancel={handleCloseModalCreate}
         confirmLoading={newsListOnReducer.loadingSave}
       >
         <Form onFinish={handleSaveNews} form={form}>
