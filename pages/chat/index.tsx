@@ -14,18 +14,20 @@ import {
   MessageItemReducerInterface,
 } from "../../store/userConversation/model";
 import { UserReducerInterface } from "../../store/user/model";
-import { FaPaperPlane, FaSearch } from "react-icons/fa";
+import { FaPaperPlane, FaChevronDown } from "react-icons/fa";
 import { useState } from "react";
 import { useEffect } from "react";
 import { maskTime } from "../../util";
 import { Form } from "antd";
 import { OnlineUserListInterface } from "../../store/onlineUser/model";
+import { useRef } from "react";
 
 interface Props {
   socket: Socket;
 }
 
 export default function Chat(props: Props) {
+  const [scrollToBottom, setScrollToBottom] = useState(false);
   const [selectedChatUser, setSelectedChatUser] =
     useState<ChatUserItemReducerInterface | null>(null);
   const [onlineUser, setOnlineUser] = useState<OnlineUserListInterface>({
@@ -33,6 +35,8 @@ export default function Chat(props: Props) {
   });
 
   const [form] = Form.useForm();
+  const inputRef = useRef<HTMLTextAreaElement>();
+  const chatMessageElement = document.getElementById("chat-messages");
 
   const { socket } = props;
   const dispatch = useDispatch();
@@ -53,6 +57,27 @@ export default function Chat(props: Props) {
   useEffect(() => {
     setOnlineUser(onlineUsersOnReducer);
   }, [onlineUsersOnReducer]);
+
+  useEffect(() => {
+    if (chatMessageElement) {
+      setScrollToBottom(false);
+
+      if (chatMessageElement.scrollHeight > chatMessageElement.clientHeight) {
+        setScrollToBottom(true);
+      }
+    }
+  }, [
+    conversationOnReducer.list[selectedChatUser?.id]?.messages.length,
+    chatMessageElement?.scrollHeight,
+  ]);
+
+  useEffect(() => {
+    if (selectedChatUser) {
+      inputRef?.current?.focus();
+      form.setFieldsValue({ message: "" });
+      handleScrollToBottomChat(false);
+    }
+  }, [selectedChatUser]);
 
   const searchConversation = (chatUserName: string) => {
     // if (chatUserName.length === 0) {
@@ -78,16 +103,20 @@ export default function Chat(props: Props) {
     if (values && values.message && values.message.length) {
       const { message } = values;
 
-      if(socket) {
+      if (socket) {
         socket.emit("send_mesage_to_user", {
           to_user_id: receiverId,
           sent_time: new Date(),
           message,
         });
-  
+
         form.setFieldsValue({
           message: "",
         });
+
+        setTimeout(() => {
+          handleScrollToBottomChat();
+        }, 100);
       }
     }
   };
@@ -95,6 +124,20 @@ export default function Chat(props: Props) {
   const handleSpecialKeySendMessage = (event: any) => {
     if (event.key === "Enter" && event.ctrlKey) {
       form.submit();
+    }
+  };
+
+  const handleScrollToBottomChat = (useSmooth: boolean = true) => {
+    if (chatMessageElement) {
+      const config: any = {
+        top: chatMessageElement.scrollHeight,
+      }
+
+      if(useSmooth) config.behavior = "smooth";
+
+      chatMessageElement.scrollTo(config);
+
+      setScrollToBottom(false);
     }
   };
 
@@ -165,7 +208,7 @@ export default function Chat(props: Props) {
               <h3>{selectedChatUser.name}</h3>
             </div>
 
-            <div className="chat-messages">
+            <div id="chat-messages">
               {conversationOnReducer.list[selectedChatUser.id] &&
                 conversationOnReducer.list[selectedChatUser.id].messages.map(
                   (item: MessageItemReducerInterface, index) => {
@@ -178,15 +221,25 @@ export default function Chat(props: Props) {
                   }
                 )}
 
+              {scrollToBottom && (
+                <div
+                  className="button-scroll-bottom-chat"
+                  title="Novas mensagens"
+                  onClick={() => handleScrollToBottomChat()}
+                >
+                  <FaChevronDown />
+                </div>
+              )}
+
               <Form
                 onFinish={(e) => handleSendMessage(e, selectedChatUser.id)}
                 form={form}
               >
                 <Form.Item name="message">
-                  <InputTextArea
-                    placeholder="Digite sua mensagem"
-                    allowClear
+                  <textarea
                     rows={2}
+                    placeholder="Digite sua mensagem"
+                    ref={inputRef}
                     onKeyPress={handleSpecialKeySendMessage}
                   />
                 </Form.Item>

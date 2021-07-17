@@ -1,8 +1,12 @@
 .chat-message-list-item-received, .chat-message-list-item-sended {
+    max-width: calc(100vw - 37rem);
     display: flex;
     flex-direction: column;
     padding: 8px;
-    min-height: 50px;
+}
+
+.chat-message-list-item-received span, .chat-message-list-item-sended span {
+    white-space: pre-wrap;
 }
 
 .chat-message-list-item-received p, .chat-message-list-item-sended p {
