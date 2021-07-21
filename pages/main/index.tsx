@@ -150,12 +150,11 @@ export default function Home() {
     getUserProfile();
 
     getChatUsers();
-    
   }, []);
-  
+
   useEffect(() => {
     getConversations();
-  }, [userOnReducer.id])
+  }, [userOnReducer.id]);
 
   const getChatUsers = async () => {
     dispatch(chatUsersStartListLoading());
@@ -196,11 +195,11 @@ export default function Home() {
           userId: userOnReducer.id,
           conversationList: {
             loadingList: false,
-            list: data.rows.map(item => ({
+            list: data.rows.map((item) => ({
               id: item.id,
               userIdA: item.user_id_a,
               userIdB: item.user_id_b,
-              messages: item.messages.map(message => ({
+              messages: item.messages.map((message) => ({
                 id: message.id,
                 conversationId: message.conversation_id,
                 fromUserId: message.from_user_id,
@@ -208,8 +207,8 @@ export default function Home() {
                 text: message.text,
                 sentTime: new Date(message.sent_time),
               })),
-              createdAt: new Date(item.created_at)
-            }))
+              createdAt: new Date(item.created_at),
+            })),
           },
         })
       );
@@ -270,17 +269,19 @@ export default function Home() {
     });
 
     socket.on("receive_message_from_user", (data) => {
-      const { conversation_id, from_user_id, to_user_id, text, sent_time } = data;
+      const { conversation_id, from_user_id, to_user_id, text, sent_time } =
+        data;
 
-      const receiverId = from_user_id !== userOnReducer.id ? from_user_id : to_user_id;
+      const receiverId =
+        from_user_id !== userOnReducer.id ? from_user_id : to_user_id;
 
-      if(!conversationOnReducer.list[receiverId]?.id) {
+      if (!conversationOnReducer.list[receiverId]?.id && conversation_id) {
         dispatch(
           conversationUpdateId({
             receiverId,
-            conversationId: conversation_id
+            conversationId: conversation_id,
           })
-        )
+        );
       }
 
       dispatch(
@@ -298,6 +299,20 @@ export default function Home() {
       );
 
       countMessageId += 1;
+    });
+
+    socket.on("new_conversation", (data) => {
+      const { id, user_id_a, user_id_b } = data;
+
+      const receiverId =
+        user_id_a !== userOnReducer.id ? user_id_a : user_id_b;
+
+      dispatch(
+        conversationUpdateId({
+          receiverId,
+          conversationId: id,
+        })
+      );
     });
   };
 
