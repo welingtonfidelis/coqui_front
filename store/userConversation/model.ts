@@ -1,8 +1,8 @@
 export interface MessageItemReducerInterface {
   id: number;
   conversationId: number;
-  senderId: string;
-  receiverId: string;
+  fromUserId: string;
+  toUserId: string;
   text: string;
   sentTime: Date;
 }
@@ -13,6 +13,7 @@ export interface ConversationItemReducerInterface {
   userIdB: string;
   messages: MessageItemReducerInterface[];
   newMessage: boolean;
+  createdAt: Date;
 }
 
 export interface ConversationStartListReducerInterface {

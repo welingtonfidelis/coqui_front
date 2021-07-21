@@ -34,11 +34,13 @@ import { UserReducerInterface } from "../../store/user/model";
 import {
   conversationInsertNewMessages,
   conversationStartListLoading,
+  conversationUpdateId,
   conversationUpdateList,
 } from "../../store/userConversation/actions";
 import {
   addChatUser,
   chatUsersStartListLoading,
+  chatUsersStopListLoading,
   chatUsersUpdateList,
   removeChatUser,
 } from "../../store/chatUsers/actions";
@@ -51,6 +53,7 @@ import {
 } from "../../store/onlineUser/actions";
 import { EventEmitter } from "events";
 import { startEventEmitter } from "../../services/auth";
+import { conversationStopListLoading } from "../../store/groupConversation/actions";
 
 let socket: Socket = null;
 
@@ -147,10 +150,12 @@ export default function Home() {
     getUserProfile();
 
     getChatUsers();
-    // if (userOnReducer.name) {
-    //   getConversations();
-    // }
+    
   }, []);
+  
+  useEffect(() => {
+    getConversations();
+  }, [userOnReducer.id])
 
   const getChatUsers = async () => {
     dispatch(chatUsersStartListLoading());
@@ -172,37 +177,45 @@ export default function Home() {
         })
       );
     }
+
+    dispatch(chatUsersStopListLoading());
   };
 
   const getConversations = async () => {
     dispatch(conversationStartListLoading());
 
-    dispatch(
-      conversationUpdateList({
-        userId: userOnReducer.id,
-        conversationList: {
-          loadingList: false,
-          list: [
-            {
-              id: 1,
-              userIdA: "1",
-              userIdB: "2",
-              newMessage: true,
-              messages: [
-                {
-                  id: 1,
-                  conversationId: 1,
-                  senderId: "2",
-                  receiverId: "1",
-                  sentTime: new Date(),
-                  text: "Oi",
-                },
-              ],
-            },
-          ],
-        },
-      })
-    );
+    const props = {
+      url: "/conversations/by-token",
+    };
+
+    const { ok, data } = await getService(props);
+
+    if (ok) {
+      dispatch(
+        conversationUpdateList({
+          userId: userOnReducer.id,
+          conversationList: {
+            loadingList: false,
+            list: data.rows.map(item => ({
+              id: item.id,
+              userIdA: item.user_id_a,
+              userIdB: item.user_id_b,
+              messages: item.messages.map(message => ({
+                id: message.id,
+                conversationId: message.conversation_id,
+                fromUserId: message.from_user_id,
+                toUserId: message.to_user_id,
+                text: message.text,
+                sentTime: new Date(message.sent_time),
+              })),
+              createdAt: new Date(item.created_at)
+            }))
+          },
+        })
+      );
+    }
+
+    dispatch(conversationStopListLoading());
   };
 
   const getUserProfile = async () => {
@@ -257,18 +270,29 @@ export default function Home() {
     });
 
     socket.on("receive_message_from_user", (data) => {
-      const { from_user_id, to_user_id, message, sent_time } = data;
+      const { conversation_id, from_user_id, to_user_id, text, sent_time } = data;
+
+      const receiverId = from_user_id !== userOnReducer.id ? from_user_id : to_user_id;
+
+      if(!conversationOnReducer.list[receiverId]?.id) {
+        dispatch(
+          conversationUpdateId({
+            receiverId,
+            conversationId: conversation_id
+          })
+        )
+      }
 
       dispatch(
         conversationInsertNewMessages({
           userId: userOnReducer.id,
           message: {
             id: countMessageId,
-            conversationId: 1,
-            receiverId: to_user_id,
-            senderId: from_user_id,
+            conversationId: conversation_id,
+            toUserId: to_user_id,
+            fromUserId: from_user_id,
             sentTime: new Date(sent_time),
-            text: message,
+            text,
           },
         })
       );

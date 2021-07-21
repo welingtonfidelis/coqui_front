@@ -10,6 +10,7 @@ import {
   INSERT_OLD_MESSAGES,
   START_LIST_LOAD,
   STOP_LIST_LOAD,
+  UPDATE_ID,
   UPDATE_LIST,
 } from "./types";
 
@@ -52,12 +53,27 @@ const reducer = (state = initialState, action) => {
 
         list[receiverId] = item;
       });
+
       return {
         ...state,
-        ...conversations,
         countNewMessages,
         list,
       };
+    }
+
+    case UPDATE_ID: {
+      const { receiverId, conversationId } = action.payload;
+
+      return {
+        ...state,
+        list: {
+          ...state.list,
+          [receiverId]: {
+            ...state.list[receiverId],
+            id: conversationId
+          }
+        }
+      }
     }
 
     case INSERT_OLD_MESSAGES: {
@@ -67,9 +83,9 @@ const reducer = (state = initialState, action) => {
 
       if (oldMessages.length) {
         const receiverId =
-          oldMessages[0].receiverId !== userId
-            ? oldMessages[0].receiverId
-            : oldMessages[0].senderId;
+          oldMessages[0].toUserId !== userId
+            ? oldMessages[0].toUserId
+            : oldMessages[0].fromUserId;
 
         return {
           ...state,
@@ -89,12 +105,12 @@ const reducer = (state = initialState, action) => {
       const userId = action.payload.userId;
 
       const receiverId =
-        newMessage.receiverId !== userId
-          ? newMessage.receiverId
-          : newMessage.senderId;
+        newMessage.toUserId !== userId
+          ? newMessage.toUserId
+          : newMessage.fromUserId;
       let countNewMessages = state.countNewMessages + 1;
 
-      if (newMessage.senderId === userId) countNewMessages = 0;
+      if (newMessage.fromUserId === userId) countNewMessages = 0;
 
       if (!state.list[receiverId]) {
         return {
@@ -104,8 +120,8 @@ const reducer = (state = initialState, action) => {
             ...state.list,
             [receiverId]: {
               id: newMessage.conversationId,
-              userIdA: newMessage.senderId,
-              userIdB: newMessage.receiverId,
+              userIdA: newMessage.fromUserId,
+              userIdB: newMessage.toUserId,
               messages: [newMessage],
               newMessage: receiverId === userId,
             },

@@ -107,7 +107,8 @@ export default function Chat(props: Props) {
         socket.emit("send_mesage_to_user", {
           to_user_id: receiverId,
           sent_time: new Date(),
-          message,
+          text: message,
+          conversation_id: conversationOnReducer.list[receiverId]?.id
         });
 
         form.setFieldsValue({
@@ -118,6 +119,8 @@ export default function Chat(props: Props) {
           handleScrollToBottomChat();
         }, 100);
       }
+
+      inputRef?.current?.focus();
     }
   };
 
@@ -215,7 +218,7 @@ export default function Chat(props: Props) {
                     const props = {
                       messageText: item.text,
                       messageSentTime: item.sentTime,
-                      sended: item.senderId === userOnReducer.id,
+                      sended: item.fromUserId === userOnReducer.id,
                     };
                     return <ChatMessageListItem {...props} key={index + ""} />;
                   }

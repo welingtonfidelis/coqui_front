@@ -9,6 +9,7 @@ import {
   INSERT_OLD_MESSAGES,
   START_LIST_LOAD,
   STOP_LIST_LOAD,
+  UPDATE_ID,
   UPDATE_LIST,
 } from "./types";
 
@@ -25,6 +26,14 @@ export const conversationUpdateList = (payload: {
   userId: string;
 }) => ({
   type: UPDATE_LIST,
+  payload,
+});
+
+export const conversationUpdateId = (payload: {
+  receiverId: string;
+  conversationId: string;
+}) => ({
+  type: UPDATE_ID,
   payload,
 });
 
