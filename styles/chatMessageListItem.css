@@ -29,3 +29,19 @@
     border-radius: 12px 12px 0px 12px;
     color: var(--color-title-dark);
 }
+
+.chat-messages-load-more {
+    width: 100%;
+    text-align: center;
+    color: var(--color-title-dark);
+    margin-bottom: 5px;
+    padding-bottom: 10px;
+    /* border-bottom: 1px solid var(--color-background-dark); */
+    margin-top: -5px;
+    transition: .5s;
+}
+
+.chat-messages-load-more:hover {
+    cursor: pointer;
+    filter: brightness(.7);
+}

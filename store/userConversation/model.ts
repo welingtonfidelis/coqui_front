@@ -12,6 +12,9 @@ export interface ConversationItemReducerInterface {
   userIdA: string;
   userIdB: string;
   messages: MessageItemReducerInterface[];
+  hasMoreMessages: boolean;
+  pageMessages: number;
+  loadingMoreMessages: boolean;
   newMessage: boolean;
   createdAt: Date;
 }

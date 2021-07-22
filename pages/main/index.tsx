@@ -185,6 +185,8 @@ export default function Home() {
 
     const props = {
       url: "/conversations/by-token",
+      message_page: 1,
+      message_limit: 15,
     };
 
     const { ok, data } = await getService(props);
@@ -199,7 +201,11 @@ export default function Home() {
               id: item.id,
               userIdA: item.user_id_a,
               userIdB: item.user_id_b,
-              messages: item.messages.map((message) => ({
+              hasMoreMessages: item.messages.count > item.messages.rows.length,
+              loadingMoreMessages: false,
+              pageMessages: 1,
+              limitPerPageMessages: 10,
+              messages: item.messages.rows.map((message) => ({
                 id: message.id,
                 conversationId: message.conversation_id,
                 fromUserId: message.from_user_id,

@@ -1,5 +1,4 @@
 import {
-  ConversationReducerInterface,
   ConversationStartListReducerInterface,
   MessageItemReducerInterface,
 } from "./model";
@@ -8,7 +7,9 @@ import {
   INSERT_NEW_MESSAGE,
   INSERT_OLD_MESSAGES,
   START_LIST_LOAD,
+  START_MORE_MESSAGES_LOAD,
   STOP_LIST_LOAD,
+  STOP_MORE_MESSAGES_LOAD,
   UPDATE_ID,
   UPDATE_LIST,
 } from "./types";
@@ -38,10 +39,26 @@ export const conversationUpdateId = (payload: {
 });
 
 export const conversationInsertOldMessages = (payload: {
-  messageList: MessageItemReducerInterface[];
-  userId: string;
+  messages: MessageItemReducerInterface[];
+  hasMoreMessages: boolean;
+  pageMessages: number;
+  receiverId: string;
 }) => ({
   type: INSERT_OLD_MESSAGES,
+  payload,
+});
+
+export const conversationInsertNewMessagesStartLoading = (payload: {
+  receiverId: string;
+}) => ({
+  type: START_MORE_MESSAGES_LOAD,
+  payload,
+});
+
+export const conversationInsertNewMessagesStopLoading = (payload: {
+  receiverId: string;
+}) => ({
+  type: STOP_MORE_MESSAGES_LOAD,
   payload,
 });
 

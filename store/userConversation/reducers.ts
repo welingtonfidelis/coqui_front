@@ -9,7 +9,9 @@ import {
   INSERT_NEW_MESSAGE,
   INSERT_OLD_MESSAGES,
   START_LIST_LOAD,
+  START_MORE_MESSAGES_LOAD,
   STOP_LIST_LOAD,
+  STOP_MORE_MESSAGES_LOAD,
   UPDATE_ID,
   UPDATE_LIST,
 } from "./types";
@@ -70,34 +72,72 @@ const reducer = (state = initialState, action) => {
           ...state.list,
           [receiverId]: {
             ...state.list[receiverId],
-            id: conversationId
-          }
-        }
-      }
+            id: conversationId,
+          },
+        },
+      };
+    }
+
+    case START_MORE_MESSAGES_LOAD: {
+      const { receiverId } = action.payload;
+
+      return {
+        ...state,
+        list: {
+          ...state.list,
+          [receiverId]: {
+            ...state.list[receiverId],
+            loadingMoreMessages: true
+          },
+        },
+      };
+    }
+
+    case STOP_MORE_MESSAGES_LOAD: {
+      const { receiverId } = action.payload;
+
+      return {
+        ...state,
+        list: {
+          ...state.list,
+          [receiverId]: {
+            ...state.list[receiverId],
+            loadingMoreMessages: false
+          },
+        },
+      };
     }
 
     case INSERT_OLD_MESSAGES: {
-      const oldMessages: MessageItemReducerInterface[] =
-        action.payload.messageList;
-      const userId = action.payload.userId;
+      const {
+        messages: oldMessages,
+        receiverId,
+        hasMoreMessages,
+        pageMessages,
+      } = action.payload;
 
+      const newState = state;
       if (oldMessages.length) {
-        const receiverId =
-          oldMessages[0].toUserId !== userId
-            ? oldMessages[0].toUserId
-            : oldMessages[0].fromUserId;
-
-        return {
-          ...state,
-          list: {
-            ...state.list,
-            [receiverId]: {
-              ...state.list[receiverId],
-              messages: [...oldMessages, ...state.list[receiverId].messages],
-            },
+        newState.list = {
+          ...state.list,
+          [receiverId]: {
+            ...state.list[receiverId],
+            messages: [...oldMessages, ...state.list[receiverId].messages],
           },
         };
       }
+
+      return {
+        ...newState,
+        list: {
+          ...newState.list,
+          [receiverId]: {
+            ...newState.list[receiverId],
+            hasMoreMessages,
+            pageMessages
+          },
+        },
+      };
     }
 
     case INSERT_NEW_MESSAGE: {
@@ -122,6 +162,9 @@ const reducer = (state = initialState, action) => {
               id: newMessage.conversationId,
               userIdA: newMessage.fromUserId,
               userIdB: newMessage.toUserId,
+              hasMoreMessages: false,
+              pageMessages: 1,
+              limitPerPageMessages: 10,
               messages: [newMessage],
               newMessage: receiverId === userId,
             },

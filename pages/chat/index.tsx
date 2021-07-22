@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
+import { LoadingOutlined } from "@ant-design/icons";
 import { ButtonPrimary } from "../../components/button";
 import { Socket } from "socket.io-client";
 import { Input, InputTextArea } from "../../components/input";
@@ -21,6 +22,12 @@ import { maskTime } from "../../util";
 import { Form } from "antd";
 import { OnlineUserListInterface } from "../../store/onlineUser/model";
 import { useRef } from "react";
+import { getService } from "../../services/apiRequest";
+import {
+  conversationInsertNewMessagesStartLoading,
+  conversationInsertNewMessagesStopLoading,
+  conversationInsertOldMessages,
+} from "../../store/userConversation/actions";
 
 interface Props {
   socket: Socket;
@@ -80,10 +87,11 @@ export default function Chat(props: Props) {
   }, [selectedChatUser]);
 
   const hasChatMessageElementRef = () => {
-    if(!chatMessageElement) chatMessageElement = document.getElementById("chat-messages");
+    if (!chatMessageElement)
+      chatMessageElement = document.getElementById("chat-messages");
 
     return chatMessageElement;
-  }
+  };
 
   const searchConversation = (chatUserName: string) => {
     // if (chatUserName.length === 0) {
@@ -114,7 +122,7 @@ export default function Chat(props: Props) {
           to_user_id: receiverId,
           sent_time: new Date(),
           text: message,
-          conversation_id: conversationOnReducer.list[receiverId]?.id
+          conversation_id: conversationOnReducer.list[receiverId]?.id,
         });
 
         form.setFieldsValue({
@@ -130,6 +138,41 @@ export default function Chat(props: Props) {
     }
   };
 
+  const handleLoadMoreMessage = async (receiverId: string) => {
+    dispatch(conversationInsertNewMessagesStartLoading({ receiverId }));
+
+    const { id, pageMessages } = conversationOnReducer.list[receiverId];
+
+    const props = {
+      url: `/messages/by-conversation/${id}`,
+      page: pageMessages + 1,
+      limit: 15,
+    };
+
+    const { ok, data } = await getService(props);
+
+    if (ok) {
+      const { rows } = data;
+      dispatch(
+        conversationInsertOldMessages({
+          messages: rows.map((message) => ({
+            id: message.id,
+            conversationId: message.conversation_id,
+            fromUserId: message.from_user_id,
+            toUserId: message.to_user_id,
+            text: message.text,
+            sentTime: new Date(message.sent_time),
+          })),
+          receiverId,
+          hasMoreMessages: rows.length > 0,
+          pageMessages: pageMessages + 1,
+        })
+      );
+    }
+
+    dispatch(conversationInsertNewMessagesStopLoading({ receiverId }));
+  };
+
   const handleSpecialKeySendMessage = (event: any) => {
     if (event.key === "Enter" && event.ctrlKey) {
       form.submit();
@@ -140,9 +183,9 @@ export default function Chat(props: Props) {
     if (hasChatMessageElementRef()) {
       const config: any = {
         top: chatMessageElement.scrollHeight,
-      }
+      };
 
-      if(useSmooth) config.behavior = "smooth";
+      if (useSmooth) config.behavior = "smooth";
 
       chatMessageElement.scrollTo(config);
 
@@ -218,6 +261,20 @@ export default function Chat(props: Props) {
             </div>
 
             <div id="chat-messages">
+              {conversationOnReducer.list[selectedChatUser.id]
+                ?.hasMoreMessages &&
+                (conversationOnReducer.list[selectedChatUser.id]
+                  .loadingMoreMessages ? (
+                  <LoadingOutlined />
+                ) : (
+                  <div
+                    className="chat-messages-load-more"
+                    onClick={() => handleLoadMoreMessage(selectedChatUser.id)}
+                  >
+                    <strong>Carregar mais mensagens</strong>
+                  </div>
+                ))}
+
               {conversationOnReducer.list[selectedChatUser.id] &&
                 conversationOnReducer.list[selectedChatUser.id].messages.map(
                   (item: MessageItemReducerInterface, index) => {

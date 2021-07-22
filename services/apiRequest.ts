@@ -26,10 +26,6 @@ interface RequestInterface {
 interface ListInterface extends RequestInterface {
   limit?: number;
   page?: number;
-  description?: string;
-  date_start?: string;
-  date_end?: string;
-  cash_register_group_id?: string;
 }
 
 interface CreateInterface extends RequestInterface {
