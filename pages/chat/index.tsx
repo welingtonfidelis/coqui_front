@@ -36,7 +36,7 @@ export default function Chat(props: Props) {
 
   const [form] = Form.useForm();
   const inputRef = useRef<HTMLTextAreaElement>();
-  const chatMessageElement = document.getElementById("chat-messages");
+  let chatMessageElement: HTMLElement = null;
 
   const { socket } = props;
   const dispatch = useDispatch();
@@ -59,7 +59,7 @@ export default function Chat(props: Props) {
   }, [onlineUsersOnReducer]);
 
   useEffect(() => {
-    if (chatMessageElement) {
+    if (hasChatMessageElementRef()) {
       setScrollToBottom(false);
 
       if (chatMessageElement.scrollHeight > chatMessageElement.clientHeight) {
@@ -78,6 +78,12 @@ export default function Chat(props: Props) {
       handleScrollToBottomChat(false);
     }
   }, [selectedChatUser]);
+
+  const hasChatMessageElementRef = () => {
+    if(!chatMessageElement) chatMessageElement = document.getElementById("chat-messages");
+
+    return chatMessageElement;
+  }
 
   const searchConversation = (chatUserName: string) => {
     // if (chatUserName.length === 0) {
@@ -131,7 +137,7 @@ export default function Chat(props: Props) {
   };
 
   const handleScrollToBottomChat = (useSmooth: boolean = true) => {
-    if (chatMessageElement) {
+    if (hasChatMessageElementRef()) {
       const config: any = {
         top: chatMessageElement.scrollHeight,
       }
