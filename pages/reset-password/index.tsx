@@ -21,6 +21,8 @@ export default function ResetPassword() {
     (state: { user: UserReducerInterface }) => state.user
   );
 
+  const [form] = Form.useForm();
+
   const handleResetPassword = async (values: any) => {
     dispatch(userStartLoginLoading());
 
@@ -62,7 +64,7 @@ export default function ResetPassword() {
           Insira seu usuário ou email abaixo.
         </strong>
 
-        <Form onFinish={handleResetPassword}>
+        <Form onFinish={handleResetPassword} form={form}>
           <Form.Item
             name="email"
             rules={[{ required: true, message: "Insira seu usário ou email" }]}

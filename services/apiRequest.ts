@@ -21,6 +21,7 @@ interface RequestInterface {
   errorMessage?: NotificationMessage;
   successMessage?: NotificationMessage;
   validationToken?: boolean;
+  authorizationToken?: string;
 }
 
 interface ListInterface extends RequestInterface {
@@ -55,7 +56,7 @@ export const getService = async (props: ListInterface) => {
   delete props.url;
 
   try {
-    const Authorization = getAuthorization();
+    const Authorization = props.authorizationToken || getAuthorization();
     const response = await api.get(url, {
       params: { ...props },
       headers: { Authorization },
@@ -92,7 +93,7 @@ export const downloadFileBufferService = async (
   delete props.url;
 
   try {
-    const Authorization = getAuthorization();
+    const Authorization = props.authorizationToken || getAuthorization();
     const response = await api.get(url, {
       params: { ...props },
       headers: { Authorization },
@@ -145,7 +146,7 @@ export const postService = async (props: CreateInterface) => {
   const returnedValues: ResponseDataInterface = { ok: false, data: {} };
 
   try {
-    const Authorization = getAuthorization();
+    const Authorization = props.authorizationToken || getAuthorization();
     const response = await api.post(props.url, props.values, {
       headers: { Authorization },
     });
@@ -188,7 +189,7 @@ export const putService = async (props: UpdateInterface) => {
   const returnedValues: ResponseDataInterface = { ok: false, data: {} };
 
   try {
-    const Authorization = getAuthorization();
+    const Authorization = props.authorizationToken || getAuthorization();
     const url = `${props.url}/${props.id}${props.urlComplement ? props.urlComplement : ''}`;
     const response = await api.put(url, props.values, {
       headers: { Authorization },
@@ -232,7 +233,7 @@ export const patchService = async (props: UpdateInterface) => {
   const returnedValues: ResponseDataInterface = { ok: false, data: {} };
 
   try {
-    const Authorization = getAuthorization();
+    const Authorization = props.authorizationToken || getAuthorization();
     const url = `${props.url}/${props.id}${props.urlComplement ? props.urlComplement : ''}`;
     const response = await api.patch(url, props.values, {
       headers: { Authorization },
@@ -276,7 +277,7 @@ export const deleteService = async (props: DeleteInterface) => {
   const returnedValues: ResponseDataInterface = { ok: false, data: {} };
 
   try {
-    const Authorization = getAuthorization();
+    const Authorization = props.authorizationToken || getAuthorization();
     const response = await api.delete(`${props.url}/${props.id}`, {
       headers: { Authorization },
     });

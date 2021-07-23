@@ -10,10 +10,11 @@ import {
 } from "../../store/user/actions";
 import { UserReducerInterface } from "../../store/user/model";
 import { patchService } from "../../services/apiRequest";
-import { api } from "../../services/api";
 
 export default function ResetPassword() {
+  const [form] = Form.useForm();
   const dispatch = useDispatch();
+
   const loginInfo = useSelector(
     (state: { user: UserReducerInterface }) => state.user
   );
@@ -21,12 +22,15 @@ export default function ResetPassword() {
   const handleChangePassword = async (values: any) => {
     dispatch(userStartLoginLoading());
 
-    api.defaults.headers.Authorization = Router.query.token;
+    const authorizationToken = Router.query.token as string;
 
+    console.log(Router.query.token);
+    
     const { ok } = await patchService({
       url: "/users/profile/update-reseted-password",
       id: "",
-      values: { password: values.password },
+      values: { new_password: values.new_password },
+      authorizationToken,
       errorMessage: {
         title: "Falha!",
         message:
@@ -60,7 +64,7 @@ export default function ResetPassword() {
           Insira sua nova senha e confirme-a abaixo.
         </strong>
 
-        <Form onFinish={handleChangePassword}>
+        <Form onFinish={handleChangePassword} form={form}>
           <Form.Item
             name="new_password"
             rules={[{ required: true, message: "Insira sua nova senha" }]}
@@ -70,12 +74,12 @@ export default function ResetPassword() {
 
           <Form.Item
             name="confirmPassword"
-            dependencies={["password"]}
+            dependencies={["new_password"]}
             rules={[
               { required: true, message: "Confirme sua nova senha" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue("password") === value) {
+                  if (!value || getFieldValue("new_password") === value) {
                     return Promise.resolve();
                   }
                   return Promise.reject(new Error("Confirme sua nova senha"));
