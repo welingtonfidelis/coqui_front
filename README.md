@@ -1,12 +1,14 @@
 # COQUI
-<!-- Este é o front ([Backend] aqui) de um projeto que tem o objetivo de atender necessidades no controle de caixa, como cadastrar, listar e gerar relatório sobre movimentação em períodos específicos. Este front foi construído utilzando [Next.js] e [Typescript].
+Este é o front ([Backend] aqui) de um projeto que tem o objetivo de atender necessidades no controle de caixa, como cadastrar, listar e gerar relatório sobre movimentação em períodos específicos. Este front foi construído utilzando [Next.js], [Typescript] e [SocketIO].
 
 ## Apresentação
 Abaixo algumas telas do projeto.
 
-<img src="./docs/moco_front_3.png" alt="drawing" style="height:500px;"/>
-<img src="./docs/moco_front_5.png" alt="drawing" style="height:500px;"/>
-<img src="./docs/moco_front_9.png" alt="drawing" style="height:500px;"/>
+<img src="./docs/coqui_1.png" alt="drawing" style="height:500px;"/>
+<img src="./docs/coqui_2.png" alt="drawing" style="height:500px;"/>
+<img src="./docs/coqui_3.png" alt="drawing" style="height:500px;"/>
+<img src="./docs/coqui_4.png" alt="drawing" style="height:500px;"/>
+<img src="./docs/coqui_5.png" alt="drawing" style="height:500px;"/>
 
 ## Requisitos
 - [Node.js] - Node.js na versão 14 ou superior;
@@ -23,7 +25,7 @@ Após clonar este projeto, crie um arquivo chamado **.env** no diretório raíz,
     "user": "admmaster",
     "password": "1234"
 }
-``` -->
+```
 
 ## Contato
 welingtonfidelis@gmail.com
@@ -41,4 +43,5 @@ MIT
 [Node.js]: <https://nodejs.org/en/>
 [TypeScript]: <https://www.typescriptlang.org/>
 [Next.js]: <https://nextjs.org/>
-[Backend]: <https://github.com/welingtonfidelis/moco_api>
+[Backend]: <https://github.com/welingtonfidelis/coqui_api>
+[SocketIO]: <https://socket.io/>
