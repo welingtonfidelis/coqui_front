@@ -127,14 +127,16 @@ export default function SystemUser(props: Props) {
         values: { ...values, active: true },
       });
 
-      if (socket) {
-        socket.emit("new_user", data);
-      }
-
-      setNewUserData(data);
-      setShowModalAlert(true);
-
       noErrors = ok;
+      
+      if(noErrors) {
+        if (socket) {
+          socket.emit("new_user", data);
+        }
+
+        setNewUserData(data);
+        setShowModalAlert(true);
+      }
     }
 
     if (noErrors) {

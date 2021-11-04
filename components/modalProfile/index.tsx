@@ -130,7 +130,7 @@ export const ModalProfile: React.FC<Props> = (props) => {
 
             <Form.Item
               name="email"
-              rules={[{ required: true, message: "Insira um email" }]}
+              rules={[{ required: true, message: "Insira um email válido", type: "email" }]}
             >
               <Input
                 disabled={

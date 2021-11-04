@@ -142,15 +142,11 @@ const reducer = (state = initialState, action) => {
 
     case INSERT_NEW_MESSAGE: {
       const newMessage: MessageItemReducerInterface = action.payload.message;
-      const userId = action.payload.userId;
+      const receiverId = action.payload.receiverId;
 
-      const receiverId =
-        newMessage.toUserId !== userId
-          ? newMessage.toUserId
-          : newMessage.fromUserId;
       let countNewMessages = state.countNewMessages + 1;
 
-      if (newMessage.fromUserId === userId) countNewMessages = 0;
+      if (newMessage.fromUserId === receiverId) countNewMessages = 0;
 
       if (!state.list[receiverId]) {
         return {
@@ -164,9 +160,9 @@ const reducer = (state = initialState, action) => {
               userIdB: newMessage.toUserId,
               hasMoreMessages: false,
               pageMessages: 1,
-              limitPerPageMessages: 10,
+              limitPerPageMessages: 15,
               messages: [newMessage],
-              newMessage: receiverId === userId,
+              newMessage: receiverId === receiverId,
             },
           },
         };
@@ -180,7 +176,7 @@ const reducer = (state = initialState, action) => {
           [receiverId]: {
             ...state.list[receiverId],
             messages: [...state.list[receiverId].messages, newMessage],
-            newMessage: receiverId === userId,
+            newMessage: receiverId === receiverId,
           },
         },
       };

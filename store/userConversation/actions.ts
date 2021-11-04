@@ -64,7 +64,7 @@ export const conversationInsertNewMessagesStopLoading = (payload: {
 
 export const conversationInsertNewMessages = (payload: {
   message: MessageItemReducerInterface;
-  userId: string;
+  receiverId: string;
 }) => ({
   type: INSERT_NEW_MESSAGE,
   payload,

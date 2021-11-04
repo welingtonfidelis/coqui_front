@@ -56,6 +56,7 @@ import { startEventEmitter } from "../../services/auth";
 import { conversationStopListLoading } from "../../store/groupConversation/actions";
 
 let socket: Socket = null;
+let loggedUserId: string = null;
 
 export default function Home() {
   const [selectedPage, setSelectedPage] = useState(<NewsPage />);
@@ -154,7 +155,7 @@ export default function Home() {
 
   useEffect(() => {
     getConversations();
-  }, [userOnReducer.id]);
+  }, [loggedUserId]);
 
   const getChatUsers = async () => {
     dispatch(chatUsersStartListLoading());
@@ -204,7 +205,7 @@ export default function Home() {
               hasMoreMessages: item.messages.count > item.messages.rows.length,
               loadingMoreMessages: false,
               pageMessages: 1,
-              limitPerPageMessages: 10,
+              limitPerPageMessages: 15,
               messages: item.messages.rows.map((message) => ({
                 id: message.id,
                 conversationId: message.conversation_id,
@@ -236,6 +237,8 @@ export default function Home() {
       dispatch(
         userUpdateProfile({ ...data, profileImage: data.profile_image })
       );
+      
+      loggedUserId = data.id;
     }
     dispatch(userStopProfileLoading());
   };
@@ -274,12 +277,12 @@ export default function Home() {
       dispatch(removeChatUser(data));
     });
 
-    socket.on("receive_message_from_user", (data) => {
+    socket.on("receive_message_from_user", async (data) => {
       const { conversation_id, from_user_id, to_user_id, text, sent_time } =
         data;
 
       const receiverId =
-        from_user_id !== userOnReducer.id ? from_user_id : to_user_id;
+        from_user_id !== loggedUserId ? from_user_id : to_user_id;
 
       if (!conversationOnReducer.list[receiverId]?.id && conversation_id) {
         dispatch(
@@ -292,7 +295,7 @@ export default function Home() {
 
       dispatch(
         conversationInsertNewMessages({
-          userId: userOnReducer.id,
+          receiverId,
           message: {
             id: countMessageId,
             conversationId: conversation_id,
