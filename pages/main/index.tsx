@@ -10,6 +10,7 @@ import {
   FaQuestion,
   FaUser,
   FaRegUser,
+  FaStoreAlt,
   FaPowerOff,
   FaRegNewspaper,
 } from "react-icons/fa";
@@ -18,6 +19,7 @@ import NewsPage from "../news";
 import NewsEditPage from "../news-edit";
 import ChatPage from "../chat";
 import SystemUserPage from "../system-user";
+import CompanyPage from "../company";
 import Router from "next/router";
 import { Modal } from "../../components/modal";
 import { ModalProfile } from "../../components/modalProfile";
@@ -111,6 +113,18 @@ export default function Home() {
         title: "Editar Notícias",
         icon: <FaRegNewspaper />,
         action: () => setSelectedPage(<NewsEditPage />),
+      }
+    );
+  }
+
+  if (
+    userOnReducer.role === ROLES_ENUM.ADMIN
+  ) {
+    menuOptions.push(
+      {
+        title: "Empresas",
+        icon: <FaStoreAlt />,
+        action: () => setSelectedPage(<CompanyPage />),
       }
     );
   }

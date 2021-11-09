@@ -1,0 +1,38 @@
+.modal-company .company-header {
+    display: flex;
+    margin-bottom: 5px;
+    align-items: center;
+}
+
+.modal-company .company-header img {
+    width: 125px;
+    height: 125px;
+    background: var(--color-tertiary-dark);
+    padding: 8px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.modal-company .company-header > svg{
+    font-size: 10rem;
+    color: var(--color-secondary-dark);
+    border: 1px solid var(--color-tertiary-dark);
+    background: var(--color-tertiary-dark);
+    border-radius: 50%;
+    padding: .5rem;
+    margin-right: 10px;
+    max-height: 13rem;
+}
+
+.modal-company .company-header .col {
+    flex: 1;
+    align-self: center;
+}
+
+.modal-company .company-header .col .ant-row {
+    margin-bottom: 3px;
+}
+
+.modal-company .company-main .ant-row {
+    margin-bottom: 3px;
+}
