@@ -47,9 +47,12 @@ export const ModalCompany: React.FC<Props> = (props) => {
 
   const validateEmailAlreadyInUse = async (event) => {
     if (!formCompany.getFieldError("email").length) {
-      const { ok, data } = await getService({
+      const requestProps = {
         url: `${url}/email/${event.target.value}`,
-      });
+        id: props.id || null
+      }
+
+      const { ok, data } = await getService(requestProps);
 
       if (ok && data) {
         formCompany.setFields([
@@ -65,7 +68,12 @@ export const ModalCompany: React.FC<Props> = (props) => {
   const validateCnpjAlreadyInUse = async (event) => {
     if (!formCompany.getFieldError("cnpj").length) {
       const cnpj = removeSpecialCharacters(event.target.value);
-      const { ok, data } = await getService({ url: `${url}/cnpj/${cnpj}` });
+      const requestProps = {
+        url: `${url}/cnpj/${cnpj}`,
+        id: props.id || null
+      }
+
+      const { ok, data } = await getService(requestProps);
 
       if (ok && data) {
         formCompany.setFields([
