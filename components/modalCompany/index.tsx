@@ -1,6 +1,8 @@
 import { Form } from "antd";
 import { useEffect } from "react";
 import { FaStoreAlt } from "react-icons/fa";
+import { getService } from "../../services/apiRequest";
+import { removeSpecialCharacters } from "../../util";
 
 import { Input, InputMask } from "../input";
 import { Modal } from "../modal";
@@ -23,24 +25,57 @@ interface Props {
 
 export const ModalCompany: React.FC<Props> = (props) => {
   const [formCompany] = Form.useForm();
+  const url = "/companies";
 
   useEffect(() => {
-    if (props.isVisible)
+    if (props.isVisible) {
       formCompany.setFieldsValue({
-        ...props
+        ...props,
       });
+    } else clearFormValues();
   }, [props.isVisible]);
 
-  const onCancelModal = () => {
+  const clearFormValues = () => {
     formCompany.setFieldsValue({
       id: null,
       name: null,
       email: null,
       cnpj: "",
-      logo: null
+      logo: null,
     });
+  };
 
-    props.onCancel();
+  const validateEmailAlreadyInUse = async (event) => {
+    if (!formCompany.getFieldError("email").length) {
+      const { ok, data } = await getService({
+        url: `${url}/email/${event.target.value}`,
+      });
+
+      if (ok && data) {
+        formCompany.setFields([
+          {
+            name: "email",
+            errors: [...formCompany.getFieldError("email"), "Email já em uso"],
+          },
+        ]);
+      }
+    }
+  };
+
+  const validateCnpjAlreadyInUse = async (event) => {
+    if (!formCompany.getFieldError("cnpj").length) {
+      const cnpj = removeSpecialCharacters(event.target.value);
+      const { ok, data } = await getService({ url: `${url}/cnpj/${cnpj}` });
+
+      if (ok && data) {
+        formCompany.setFields([
+          {
+            name: "cnpj",
+            errors: [...formCompany.getFieldError("cnpj"), "Cnpj já em uso"],
+          },
+        ]);
+      }
+    }
   };
 
   return (
@@ -51,43 +86,52 @@ export const ModalCompany: React.FC<Props> = (props) => {
       onOk={() => {
         formCompany.submit();
       }}
-      onCancel={onCancelModal}
+      onCancel={props.onCancel}
       confirmLoading={props.loading}
     >
       <Form onFinish={props.onOk} form={formCompany}>
         <div className="company-header">
-          {props.logo ? (
-            <img src={props.logo} alt="" />
-          ) : (
-            <FaStoreAlt />
-          )}
+          {props.logo ? <img src={props.logo} alt="" /> : <FaStoreAlt />}
 
           <div className="col">
             <Form.Item
               name="name"
               rules={[{ required: true, message: "Insira o nome da empresa" }]}
             >
-              <Input
-                placeholder="Nome"
-                title="Nome"
-              />
+              <Input placeholder="Nome" title="Nome" />
             </Form.Item>
 
             <Form.Item
               name="email"
-              rules={[{ required: true, message: "Insira um email válido", type: "email" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Insira um email válido",
+                  type: "email",
+                },
+              ]}
             >
               <Input
                 placeholder="Email"
                 title="Email"
+                onBlur={validateEmailAlreadyInUse}
               />
             </Form.Item>
 
-            <Form.Item name="cnpj">
+            <Form.Item
+              name="cnpj"
+              rules={[
+                {
+                  required: true,
+                  message: "Insira um CPNJ",
+                },
+              ]}
+            >
               <InputMask
                 mask="99.999.999/9999-99"
                 type="tel"
                 placeholder="CNPJ"
+                onBlur={validateCnpjAlreadyInUse}
               />
             </Form.Item>
           </div>

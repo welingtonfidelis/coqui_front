@@ -51,20 +51,21 @@ export const ModalProfile: React.FC<Props> = (props) => {
     });
 
   useEffect(() => {
-    if (props.isVisible)
+    if (props.isVisible) {
       formProfile.setFieldsValue({
         ...props,
         birth: moment(props.birth || new Date()),
       });
 
-    if (props.isLoggedUserProfile) {
-      const modeIsLight = localStorage.getItem(`coqui_theme_light`) || false;
+      if (props.isLoggedUserProfile) {
+        const modeIsLight = localStorage.getItem(`coqui_theme_light`) || false;
 
-      setLightMode(modeIsLight && modeIsLight === "true");
-    }
+        setLightMode(modeIsLight && modeIsLight === "true");
+      }
+    } else clearFormValues();
   }, [props.isVisible]);
 
-  const onCancelModal = () => {
+  const clearFormValues = () => {
     formProfile.setFieldsValue({
       id: null,
       user: null,
@@ -82,8 +83,6 @@ export const ModalProfile: React.FC<Props> = (props) => {
       new_password: null,
       confirm_password: null,
     });
-
-    props.onCancel();
   };
 
   const handleChangeTheme = () => {
@@ -103,7 +102,7 @@ export const ModalProfile: React.FC<Props> = (props) => {
       onOk={() => {
         formProfile.submit();
       }}
-      onCancel={onCancelModal}
+      onCancel={props.onCancel}
       confirmLoading={props.loading}
     >
       <Form onFinish={props.onOk} form={formProfile}>
@@ -130,7 +129,13 @@ export const ModalProfile: React.FC<Props> = (props) => {
 
             <Form.Item
               name="email"
-              rules={[{ required: true, message: "Insira um email válido", type: "email" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Insira um email válido",
+                  type: "email",
+                },
+              ]}
             >
               <Input
                 disabled={
