@@ -14,3 +14,10 @@ export const maskTime = (date: Date) => {
 
   return time;
 }
+
+export const removeSpecialCharacters = (word: string) => {
+  let wordHandled = word.replace(/[^\w\s]/gi, "");
+  wordHandled = wordHandled.replace(/_/g, "");
+
+  return wordHandled;
+};

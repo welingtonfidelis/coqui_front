@@ -21,6 +21,7 @@ import "../styles/chatUserListItem.css";
 import "../styles/chatMessageListItem.css";
 import "../styles/systemUser.css";
 import "../styles/newsEdit.css";
+import "../styles/modalCompany.css";
 
 import { storeWrapper } from "../store";
 import { AuthProvider } from "../contexts/AuthContext";

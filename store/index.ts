@@ -8,6 +8,7 @@ import conversation from "./userConversation/reducers";
 import chatUsers from "./chatUsers/reducers";
 import systemUser from "./systemUser/reducers";
 import onlineUser from "./onlineUser/reducers";
+import company from "./company/reducers";
 
 const reducers = combineReducers({
   user,
@@ -16,7 +17,8 @@ const reducers = combineReducers({
   conversation,
   chatUsers,
   systemUser,
-  onlineUser
+  onlineUser,
+  company
 });
 
 const makeStore = () => {

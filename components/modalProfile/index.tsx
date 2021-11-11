@@ -10,6 +10,7 @@ import { ButtonPrimary } from "../button";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import { ROLES_ENUM_PTBR } from "../../enums/role";
+import { getService } from "../../services/apiRequest";
 
 interface Props {
   id?: string;
@@ -39,6 +40,8 @@ export const ModalProfile: React.FC<Props> = (props) => {
 
   const [formProfile] = Form.useForm();
   const [formProfilePassword] = Form.useForm();
+  const url = "/users";
+
   const roleList =
     props.roleList ||
     Object.entries(ROLES_ENUM_PTBR).map((item) => {
@@ -51,20 +54,21 @@ export const ModalProfile: React.FC<Props> = (props) => {
     });
 
   useEffect(() => {
-    if (props.isVisible)
+    if (props.isVisible) {
       formProfile.setFieldsValue({
         ...props,
         birth: moment(props.birth || new Date()),
       });
 
-    if (props.isLoggedUserProfile) {
-      const modeIsLight = localStorage.getItem(`coqui_theme_light`) || false;
+      if (props.isLoggedUserProfile) {
+        const modeIsLight = localStorage.getItem(`coqui_theme_light`) || false;
 
-      setLightMode(modeIsLight && modeIsLight === "true");
-    }
+        setLightMode(modeIsLight && modeIsLight === "true");
+      }
+    } else clearFormValues();
   }, [props.isVisible]);
 
-  const onCancelModal = () => {
+  const clearFormValues = () => {
     formProfile.setFieldsValue({
       id: null,
       user: null,
@@ -82,8 +86,6 @@ export const ModalProfile: React.FC<Props> = (props) => {
       new_password: null,
       confirm_password: null,
     });
-
-    props.onCancel();
   };
 
   const handleChangeTheme = () => {
@@ -95,6 +97,48 @@ export const ModalProfile: React.FC<Props> = (props) => {
     bodyRef.classList.toggle("light-mode");
   };
 
+  const validateEmailAlreadyInUse = async (event) => {
+    if (formProfile.getFieldValue("email") && !formProfile.getFieldError("email").length) {
+      const email = event.target.value;
+      const requestProps = {
+        url: `${url}/email/${email}`,
+        id: props.id || null
+      }
+
+      const { ok, data } = await getService(requestProps);
+
+      if (ok && data) {
+        formProfile.setFields([
+          {
+            name: "email",
+            errors: [...formProfile.getFieldError("email"), "Email já em uso"],
+          },
+        ]);
+      }
+    }
+  };
+
+  const validateUserAlreadyInUse = async (event) => {
+    if (formProfile.getFieldValue("user") && !formProfile.getFieldError("user").length) {
+      const user = event.target.value;
+      const requestProps = {
+        url: `${url}/user/${user}`,
+        id: props.id || null
+      }
+
+      const { ok, data } = await getService(requestProps);
+
+      if (ok && data) {
+        formProfile.setFields([
+          {
+            name: "user",
+            errors: [...formProfile.getFieldError("user"), "Usuário já em uso"],
+          },
+        ]);
+      }
+    }
+  };
+
   return (
     <Modal
       className="modal-profile"
@@ -103,7 +147,7 @@ export const ModalProfile: React.FC<Props> = (props) => {
       onOk={() => {
         formProfile.submit();
       }}
-      onCancel={onCancelModal}
+      onCancel={props.onCancel}
       confirmLoading={props.loading}
     >
       <Form onFinish={props.onOk} form={formProfile}>
@@ -125,12 +169,19 @@ export const ModalProfile: React.FC<Props> = (props) => {
                 }
                 placeholder="Usuário"
                 title="Usuário"
+                onBlur={validateUserAlreadyInUse}
               />
             </Form.Item>
 
             <Form.Item
               name="email"
-              rules={[{ required: true, message: "Insira um email válido", type: "email" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Insira um email válido",
+                  type: "email",
+                },
+              ]}
             >
               <Input
                 disabled={
@@ -138,6 +189,7 @@ export const ModalProfile: React.FC<Props> = (props) => {
                 }
                 placeholder="Email"
                 title="Email"
+                onBlur={validateEmailAlreadyInUse}
               />
             </Form.Item>
 
