@@ -13,7 +13,7 @@ export const Notification = (props: Props) => {
   let unauthorizedMessage = null;
 
   if (props.validationToken)
-    unauthorizedMessage = handleUnauthorized(props.statusCode);
+    unauthorizedMessage = handleUnauthorized({ statusCode:  props.statusCode });
 
   return notification[props.type]({
     message: props.message,

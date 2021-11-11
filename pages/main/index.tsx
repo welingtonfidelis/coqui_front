@@ -56,6 +56,7 @@ import {
 import { EventEmitter } from "events";
 import { startEventEmitter } from "../../services/auth";
 import { conversationStopListLoading } from "../../store/groupConversation/actions";
+import { ModalRefreshToken } from "../../components/modalRefreshToken";
 
 let socket: Socket = null;
 let loggedUserId: string = null;
@@ -64,6 +65,7 @@ export default function Home() {
   const [selectedPage, setSelectedPage] = useState(<NewsPage />);
   const [showModal, setShowModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showRefreshTokenModal, setShowRefreshTokenModal] = useState(false);
   const [socketStatusClass, setSocketStatusClass] = useState(
     "socket-disconnected"
   );
@@ -150,6 +152,10 @@ export default function Home() {
 
   eventEmitter.on("socket:disconnect", () => {
     if (socket) socket.disconnect();
+  });
+
+  eventEmitter.on("refresh_token_modal:open", () => {
+    setShowRefreshTokenModal(true);
   });
 
   useEffect(() => {
@@ -456,6 +462,13 @@ export default function Home() {
         disableFields={["user", "email", "role"]}
         isLoggedUserProfile={true}
         {...userOnReducer}
+      />
+
+      <ModalRefreshToken 
+        isVisible={showRefreshTokenModal}
+        onOk={() => { setShowRefreshTokenModal(false); socketConnect(); }}
+        onCancel={() => setShowRefreshTokenModal(false)}
+        eventEmitter={eventEmitter}
       />
     </div>
   );

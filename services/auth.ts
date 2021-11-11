@@ -7,14 +7,20 @@ export const startEventEmitter = (emitter: EventEmitter) => {
   eventEmitter = emitter;
 };
 
-export const handleUnauthorized = (statusCode: number) => {
-  if (statusCode && statusCode === 401) {
-    if (eventEmitter) {
-      eventEmitter.emit("socket:disconnect", {});
+interface HandleUnauthorizedInterface {
+  statusCode: number;
+}
+
+export const handleUnauthorized = (props: HandleUnauthorizedInterface) => {
+  if (props.statusCode && props.statusCode === 401) {
+    if(!eventEmitter) {
+      Router.replace("/");
+
+      return "Token inválido ou expirado. Por favor, faça o login novamente.";
     }
 
-    Router.replace("/");
+    eventEmitter.emit("refresh_token_modal:open");
 
-    return "Token inválido ou expirado. Por favor, faça o login novamente.";
+    return "Token expirado, por favor, faça o login novamente."
   }
 };

@@ -77,7 +77,7 @@ export const getService = async (props: ListInterface) => {
       message,
       description,
       statusCode: error?.response?.status,
-      validationToken: props.validationToken ?? true,
+      validationToken: props.validationToken ?? true
     });
   } finally {
     return returnedValues;
@@ -137,7 +137,7 @@ export const downloadFileBufferService = async (
       message,
       description,
       statusCode: error?.response?.status,
-      validationToken: props.validationToken ?? true,
+      validationToken: props.validationToken ?? true
     });
   }
 };
@@ -178,7 +178,7 @@ export const postService = async (props: CreateInterface) => {
       message,
       description,
       statusCode: error?.response?.status,
-      validationToken: props.validationToken ?? true,
+      validationToken: props.validationToken ?? true
     });
   } finally {
     return returnedValues;
@@ -222,7 +222,7 @@ export const putService = async (props: UpdateInterface) => {
       message,
       description,
       statusCode: error?.response?.status,
-      validationToken: props.validationToken ?? true,
+      validationToken: props.validationToken ?? true
     });
   } finally {
     return returnedValues;
@@ -266,7 +266,7 @@ export const patchService = async (props: UpdateInterface) => {
       message,
       description,
       statusCode: error?.response?.status,
-      validationToken: props.validationToken ?? true,
+      validationToken: props.validationToken ?? true
     });
   } finally {
     return returnedValues;
@@ -309,7 +309,7 @@ export const deleteService = async (props: DeleteInterface) => {
       message,
       description,
       statusCode: error?.response?.status,
-      validationToken: props.validationToken ?? true,
+      validationToken: props.validationToken ?? true
     });
   } finally {
     return returnedValues;
