@@ -46,7 +46,7 @@ export const ModalCompany: React.FC<Props> = (props) => {
   };
 
   const validateEmailAlreadyInUse = async (event) => {
-    if (!formCompany.getFieldError("email").length) {
+    if (formCompany.getFieldValue("email") && !formCompany.getFieldError("email").length) {
       const requestProps = {
         url: `${url}/email/${event.target.value}`,
         id: props.id || null
@@ -66,7 +66,7 @@ export const ModalCompany: React.FC<Props> = (props) => {
   };
 
   const validateCnpjAlreadyInUse = async (event) => {
-    if (!formCompany.getFieldError("cnpj").length) {
+    if (formCompany.getFieldValue("cnpj") && !formCompany.getFieldError("cnpj").length) {
       const cnpj = removeSpecialCharacters(event.target.value);
       const requestProps = {
         url: `${url}/cnpj/${cnpj}`,
