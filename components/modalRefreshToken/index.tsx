@@ -31,7 +31,9 @@ export const ModalRefreshToken: React.FC<Props> = (props) => {
   );
 
   useEffect(() => {
-    if (!props.isVisible) clearFormValues();
+    if(!userInfo.token || !userInfo.token.length) {
+      handleToLoginPage();
+    } else if (!props.isVisible) clearFormValues();
   }, [props.isVisible]);
 
   const clearFormValues = () => {
